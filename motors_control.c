@@ -33,10 +33,10 @@ static int speed_translation=0;
 /***************************INTERNAL FUNCTIONS************************************/
 
 static void set_motors_speed(float speed);
-static void set_mode_deplacement(float error, bool meme_signe, bool sens);
+static void set_mode_deplacement(int16_t error, bool meme_signe, bool sens);
 static void set_motors_speed_PID(float speed);
-static int regulator_speed(float error);
-static void set_motors_speed_pente(float pente);
+static int regulator_speed(int16_t error);
+static void set_motors_speed_pente(int16_t pente);
 void motors_control_start(void);
 /*test avoid obstacle */
 static void avoid_obstacle(void);
@@ -49,8 +49,8 @@ static THD_FUNCTION(motor_control_thd, arg)
      (void) arg;
      chRegSetThreadName(__FUNCTION__);
 
-     float error = 0;
-     float pente =0;
+     int16_t error = 0;
+     int16_t pente =0;
      systime_t time;
      while(true)
      {
@@ -79,7 +79,7 @@ static THD_FUNCTION(motor_control_thd, arg)
 }
 //PID pour faire tourner les moteurs par la suite afin d'avoir un meilleur ajustement et aussi pouvoir faire évoluer la trajectoire
 
-static void set_motors_speed_pente(float pente){// ne marche pas
+static void set_motors_speed_pente(int16_t pente){// ne marche pas
 
 	uint8_t dt = 4;
 	static float integ = 0;
@@ -92,11 +92,11 @@ static void set_motors_speed_pente(float pente){// ne marche pas
 
 }
 
-static int regulator_speed(float error)
+static int regulator_speed(int16_t error)
 {
 	//PID
 	uint8_t dt = 4;
-	static float ancienne_erreur = 0;
+	static int16_t ancienne_erreur = 0;
 	float speed_pid =0;
 
 	float new_integrale = 0;

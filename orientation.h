@@ -1,11 +1,12 @@
 #ifndef PI_REGULATOR_H
 #define PI_REGULATOR_H
-#include <stdbool.h>
+
+#include <stdint.h>
 
 
-float get_error(void);
+int16_t get_error(void);
 void orientation_start(void);
-float get_pente(void);
+int16_t get_pente(void);
 
 
 #endif

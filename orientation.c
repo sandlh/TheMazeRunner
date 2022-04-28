@@ -20,7 +20,7 @@
 //#define BETA
 //#define GAMMA
 
-static float error = 0;
+static int16_t error = 0;
 static pente = 0;
 
 
@@ -29,10 +29,10 @@ MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
 
 static void update_data(void);
-static float passe_bas_filter(float acc);
-float get_error(void);
+static int16_t passe_bas_filter(int16_t acc);
+int16_t get_error(void);
 void orientation_start(void);
-float get_pente(void);
+int16_t get_pente(void);
 
 static THD_WORKING_AREA(imu_reader_thd_wa, 512);
 static THD_FUNCTION(imu_reader_thd, arg) {
@@ -71,15 +71,15 @@ void orientation_start(void)
 }
 static void update_data(void) // quand je veux tourner mon acceleration en x est mon erreur dans un deuxième temps y pour la vitesse
 {
-	float acceleration_x = (float)get_acc(X_AXIS); // il faudrait créer notre propre filtre
-	float acceleration_y = (float)get_acc(Y_AXIS);
+	int16_t acceleration_x = (int16_t)get_acc(X_AXIS); // il faudrait créer notre propre filtre
+	int16_t acceleration_y = (int16_t)get_acc(Y_AXIS);
 
 	//chprintf((BaseSequentialStream *)&SD3, "acc_x = %f \n", acceleration_x); //prints
 	//chprintf((BaseSequentialStream *)&SD3, "acc_y = %f \n", acceleration_y); //prints
 
 	acceleration_x = passe_bas_filter(acceleration_x);
 	acceleration_y = passe_bas_filter(acceleration_y);
-	static float threshold=150	;
+	static int16_t threshold=150	;
 
 	if(abs(acceleration_y)<threshold){
 		error = 0;
@@ -93,11 +93,11 @@ static void update_data(void) // quand je veux tourner mon acceleration en x est
 
 }
 
-static float passe_bas_filter(float acc){
+static int16_t passe_bas_filter(int16_t acc){
 
 
-	static float acc_filtered_old_value = 0;
-	float acc_low_pass_filtered = 0;
+	static int16_t acc_filtered_old_value = 0;
+	int16_t acc_low_pass_filtered = 0;
 
 
 	acc_low_pass_filtered = ALPHA * acc +(1-ALPHA)*acc_filtered_old_value;
@@ -124,12 +124,12 @@ static float second_low_pass_filter(float acc){
 	return acc_low_pass_filtered;
 }*/
 
-float get_error(void)
+int16_t get_error(void)
 {
 	return error;
 }
 
-float get_pente(void)
+int16_t get_pente(void)
 {
 	return pente;
 }
