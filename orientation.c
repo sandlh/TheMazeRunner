@@ -4,6 +4,8 @@
 #include <sensors/imu.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include <chprintf.h>
+#include <usbcfg.h>
 
 
 #include <math.h>
@@ -51,6 +53,8 @@ static THD_FUNCTION(imu_reader_thd, arg) {
 
 		update_data();
 
+
+
 		chThdSleepUntilWindowed(time, time + MS2ST(THREAD_PERIOD));
 
 	}
@@ -65,10 +69,13 @@ void orientation_start(void)
 
 	chThdCreateStatic(imu_reader_thd_wa, sizeof(imu_reader_thd_wa), NORMALPRIO+1, imu_reader_thd, NULL);
 }
-static void update_data(void) // quand je veu tourner mon acceleration en x est mon erreur dans un deuxième temps y pour la vitesse
+static void update_data(void) // quand je veux tourner mon acceleration en x est mon erreur dans un deuxième temps y pour la vitesse
 {
-	float acceleration_x = get_acc(X_AXIS); // il faudrait créer notre propre filtre
-	float acceleration_y = get_acc(Y_AXIS);
+	float acceleration_x = (float)get_acc(X_AXIS); // il faudrait créer notre propre filtre
+	float acceleration_y = (float)get_acc(Y_AXIS);
+
+	//chprintf((BaseSequentialStream *)&SD3, "acc_x = %f \n", acceleration_x); //prints
+	//chprintf((BaseSequentialStream *)&SD3, "acc_y = %f \n", acceleration_y); //prints
 
 	acceleration_x = passe_bas_filter(acceleration_x);
 	acceleration_y = passe_bas_filter(acceleration_y);
