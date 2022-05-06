@@ -6,28 +6,25 @@
 #include <math.h>
 #include <stdbool.h>
 
-/*#include "ch.h" for chprintf
+#include "ch.h" //for chprintf
 #include "hal.h"
 #include <chprintf.h>
 #include <usbcfg.h>
-#include <msgbus/messagebus.h>*/
+#include <msgbus/messagebus.h>
 
 #define Kibis 0.1
 #define Kd 0.011  // 0.0015
 #define Ki 0.0025   //0.003
 #define Kp 0.05    //0.01
 #define THREAD_TIME 4 //[ms]
-#define FRONT 0
-#define BACK 1
-#define LEFT 2
-#define RIGHT 3
+#define RIGHT 0
+#define LEFT 1
 static uint8_t mode_deplacement=16;
 #define AWM_MAX  100
 #define AWM_MIN  -AWM_MAX
 
 /*test avoid obstacle */
-#define SAFE_DISTANCE 900
-static int speed_translation=0;
+static int speed[2]={0};
 /* end test avoid obstacle */
 
 /***************************INTERNAL FUNCTIONS************************************/
@@ -39,8 +36,8 @@ static int regulator_speed(int16_t error);
 static void set_motors_speed_pente(int16_t pente);
 void motors_control_start(void);
 /*test avoid obstacle */
-static void avoid_obstacle(void);
-static void go_back_forth(void);
+//static void avoid_obstacle(void);
+//static void go_back_forth(void);
 /* end test avoid obstacle */
 
 static THD_WORKING_AREA(motor_control_thd_wa, 512);
@@ -52,6 +49,7 @@ static THD_FUNCTION(motor_control_thd, arg)
      int16_t error = 0;
      int16_t pente =0;
      systime_t time;
+
      while(true)
      {
     	time = chVTGetSystemTime();
@@ -71,9 +69,17 @@ static THD_FUNCTION(motor_control_thd, arg)
 		//set_motors_speed_PID(regulator_speed(error));
 		}*/
 		//go_back_forth();
-		//avoid_obstacle();
-		//right_motor_set_speed(speed_translation);
-		//left_motor_set_speed(speed_translation);
+		if(is_there_obstacle()){
+			avoid_obstacle(speed);
+			speed[RIGHT]=get_speed_right();
+			speed[LEFT]=get_speed_left();
+			//chprintf((BaseSequentialStream *)&SD3, "speed_r = %d   speed_l = %d", speed[RIGHT],speed[LEFT]);
+		}else{
+			speed[RIGHT]=400;
+			speed[LEFT]=400;
+		}
+		right_motor_set_speed(speed[RIGHT]);
+		left_motor_set_speed(speed[LEFT]);
 		chThdSleepUntilWindowed(time, time + MS2ST(THREAD_TIME));
      }
 }
@@ -158,7 +164,7 @@ static void set_mode_deplacement(float error, bool meme_signe, bool sens){   // 
 */
 
 /***********************Test avoid obstacle***********************************/
-static void avoid_obstacle(void){
+/*static void avoid_obstacle(void){
 	uint16_t distance_front_right = get_distance_front_right();
 	uint16_t distance_front_left = get_distance_front_left();
 	uint16_t distance_front = distance_front_right + distance_front_left;
@@ -174,19 +180,19 @@ static void avoid_obstacle(void){
 	if((distance_back > SAFE_DISTANCE) & (speed_translation<0)){
 		speed_translation=0;
 	}
-}
+}*/
 
-static void go_back_forth(void){
+/*static void go_back_forth(void){
 	static uint16_t i=0;
 	i++;
 	if(i<1000){
-		speed_translation=400;
+		speed_translation_=400;
 	}else if(i>=1000){
-		speed_translation=-400;
+		speed_translation=400;
 	}if(i>=2000){
 		i=0;
 	}
-}
+}*/
 
 /***********************End test avoid obstacle*******************************/
 
