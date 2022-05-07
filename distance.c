@@ -23,7 +23,13 @@
 #define SENSOR_RIGHT 2
 #define SENSOR_LEFT 5
 
-#define SAFE_DISTANCE 120
+#define SAFE_DISTANCE 100
+#define DISTANCE_GOAL 180
+
+#define OR_ARW_MAX 50
+#define OR_ARW_MIN -50
+#define DIS_ARW_MAX 50
+#define DIS_ARW_MIN -50
 
 #define THREAD_PERIOD 4 //[ms]
 
@@ -39,8 +45,10 @@
 static uint16_t sensor_value[NB_PROX_SENSOR];
 static int new_speed[2];
 
+
 /***************************INTERNAL FUNCTIONS************************************/
 static void update_data(void);
+static int regulator_orientation(int16_t error);
 
 static THD_WORKING_AREA(distance_thd_wa, 512);
 static THD_FUNCTION(distance_thd, arg) {
@@ -71,6 +79,33 @@ static void update_data(void){
 	sensor_value[LEFT] = get_calibrated_prox(SENSOR_LEFT);
 }
 
+static int regulator_orientation(int16_t error)
+{
+	//PID
+	uint8_t dt = THREAD_PERIOD;
+	static uint8_t Kp = 4;
+	static float Ki = 0.05;
+	static uint8_t Kd = 20;
+
+	static int16_t old_error = 0;
+	int16_t orientation_pid =0;
+
+	static int8_t integrale = 0;
+	static int16_t derivee = 0;
+
+	integrale += Ki *error*dt;
+	derivee = error-old_error;//debug
+
+	if(integrale > OR_ARW_MAX)
+			integrale = OR_ARW_MAX;
+	else if (integrale < OR_ARW_MIN )
+			integrale = OR_ARW_MIN;
+
+	orientation_pid = Kp*error + integrale + (Kd*(error-old_error))/dt;
+	old_error = error;
+	chprintf((BaseSequentialStream *)&SD3, "integral = %d  derivee = %d error=%d ", integrale, derivee, error);
+	return orientation_pid;
+}
 
 
 /*************************END INTERNAL FUNCTIONS**********************************/
@@ -117,28 +152,20 @@ uint8_t index_highest_sensor_value(void){
 void avoid_obstacle(int* speed){
 	uint8_t index_sensor_max = index_highest_sensor_value();
 	static int16_t error_right=0;
-	static int16_t error_right_int=0;
 	static int16_t error_lateral = 0;
+
 	switch(index_sensor_max){
 		case FRONT_RIGHT :
 		case BACK_RIGHT :
 		case RIGHT :
-			error_lateral = 180 - sensor_value[RIGHT];
+			error_lateral = SAFE_DISTANCE - sensor_value[RIGHT];
 			error_right=sensor_value[FRONT_RIGHT]-sensor_value[BACK_RIGHT];
-			error_right_int+=error_right;
-			if(error_right_int>50){
-				error_right_int=50;
-			}
-			if(error_lateral>0){
-				new_speed[0]=speed[0];
-				new_speed[1]=speed[0]-7*error_right-1*error_right_int;
-				chprintf((BaseSequentialStream *)&SD3, "sup 0  error = %d  left = %d error_int= %d ", error_right, new_speed[1],error_right_int);
-			}else{
-				new_speed[0]=speed[0];
-				new_speed[1]=speed[0]+8*error_lateral;
-				error_right_int=0;
-				chprintf((BaseSequentialStream *)&SD3, "right = %d  left = %d error_lat= %d  sensor_right= %d ", new_speed[0], new_speed[1],error_lateral,sensor_value[RIGHT]);
-			}
+
+			new_speed[0]=400+regulator_orientation(error_right)-error_lateral;
+			new_speed[1]=400-regulator_orientation(error_right)+error_lateral;
+				//chprintf((BaseSequentialStream *)&SD3, "sup 0  error = %d  left = %d  ", error_right, new_speed[1]);
+
+				//chprintf((BaseSequentialStream *)&SD3, "right = %d  left = %d error_lat= %d  sensor_right= %d ", new_speed[0], new_speed[1],error_lateral,sensor_value[RIGHT]);
 
 			break;
 		case FRONT_LEFT :
