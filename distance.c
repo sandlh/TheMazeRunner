@@ -44,6 +44,7 @@
 #define NB_PROX_SENSOR 6
 static uint16_t sensor_value[NB_PROX_SENSOR];
 static int new_speed[2];
+static int8_t integrale=0;
 
 
 /***************************INTERNAL FUNCTIONS************************************/
@@ -90,8 +91,7 @@ static int regulator_orientation(int16_t error)
 	static int16_t old_error = 0;
 	int16_t orientation_pid =0;
 
-	static int8_t integrale = 0;
-	static int16_t derivee = 0;
+	static int16_t derivee = 0;//debug
 
 	integrale += Ki *error*dt;
 	derivee = error-old_error;//debug
@@ -151,35 +151,34 @@ uint8_t index_highest_sensor_value(void){
 
 void avoid_obstacle(int* speed){
 	uint8_t index_sensor_max = index_highest_sensor_value();
-	static int16_t error_right=0;
-	static int16_t error_lateral = 0;
+	static int16_t error_orientation = 0;
+	static int16_t error_distance_to_wall = 0;
+	static int8_t previous_state = 0;
 
 	switch(index_sensor_max){
 		case FRONT_RIGHT :
 		case BACK_RIGHT :
 		case RIGHT :
-			error_lateral = SAFE_DISTANCE - sensor_value[RIGHT];
-			error_right=sensor_value[FRONT_RIGHT]-sensor_value[BACK_RIGHT];
+			if((previous_state == FRONT_LEFT) || (previous_state == BACK_LEFT) || (previous_state == LEFT)){
+				integrale = 0; //s'il y a un changement d'état, on remet l'integrale de l'erreur à zero
+			}
+			error_distance_to_wall = SAFE_DISTANCE - sensor_value[RIGHT];
+			error_orientation=sensor_value[FRONT_RIGHT]-sensor_value[BACK_RIGHT];
 
-			new_speed[0]=400+regulator_orientation(error_right)-error_lateral;
-			new_speed[1]=400-regulator_orientation(error_right)+error_lateral;
-				//chprintf((BaseSequentialStream *)&SD3, "sup 0  error = %d  left = %d  ", error_right, new_speed[1]);
-
-				//chprintf((BaseSequentialStream *)&SD3, "right = %d  left = %d error_lat= %d  sensor_right= %d ", new_speed[0], new_speed[1],error_lateral,sensor_value[RIGHT]);
-
+			new_speed[0]=400+regulator_orientation(error_orientation)-error_distance_to_wall;
+			new_speed[1]=400-regulator_orientation(error_orientation)+error_distance_to_wall;
 			break;
 		case FRONT_LEFT :
-			//new_speed[0]=-200;
-			//new_speed[1]=200;
-			break;
 		case BACK_LEFT :
-			/*if(sensor_value[LEFT]>sensor_value[BACK_RIGHT]){
-				return 600;
-			}else{
-				return -600;
-			}*/
-			break;
 		case LEFT :
+			if((previous_state == FRONT_RIGHT) || (previous_state == BACK_RIGHT) || (previous_state == RIGHT)){
+				integrale = 0; //s'il y a un changement d'état, on remet l'integrale de l'erreur à zero
+			}
+			error_distance_to_wall = SAFE_DISTANCE - sensor_value[LEFT];
+			error_orientation=sensor_value[FRONT_LEFT]-sensor_value[BACK_LEFT];
+
+			new_speed[0]=400-regulator_orientation(error_orientation)+error_distance_to_wall;
+			new_speed[1]=400+regulator_orientation(error_orientation)-error_distance_to_wall;
 			break;
 		default :
 			break;
