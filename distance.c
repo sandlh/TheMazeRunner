@@ -16,25 +16,21 @@
 #include <math.h>
 
 
-#define SENSOR_FRONT_RIGHT 0
+#define SENSOR_FRONT_RIGHT 0 //#define to read the values from sensors
 #define SENSOR_BACK_RIGHT 3
 #define SENSOR_BACK_LEFT 4
 #define SENSOR_FRONT_LEFT 7
 #define SENSOR_RIGHT 2
 #define SENSOR_LEFT 5
 
-#define SAFE_DISTANCE 100
-#define DISTANCE_GOAL 180
+#define SAFE_DISTANCE 100 //security distance for wall following
 
-#define OR_ARW_MAX 50
-#define OR_ARW_MIN -50
-#define DIS_ARW_MAX 50
-#define DIS_ARW_MIN -50
+#define ARW_MAX 50 //anti rewind max and min values for orientation PID
+#define ARW_MIN -50
 
 #define THREAD_PERIOD 4 //[ms]
 
-
-#define FRONT_RIGHT 0
+#define FRONT_RIGHT 0 //#define to use the values from the sensor in the array sensor_value
 #define FRONT_LEFT 1
 #define BACK_RIGHT 2
 #define BACK_LEFT 3
@@ -42,14 +38,18 @@
 #define LEFT 5
 
 #define NB_PROX_SENSOR 6
+
+#define NULL 0 //value to initialize parameters
+
 static uint16_t sensor_value[NB_PROX_SENSOR];
 static int new_speed[2];
-static int8_t integrale=0;
+static int8_t integrale=NULL;
 
 
 /***************************INTERNAL FUNCTIONS************************************/
 static void update_data(void);
 static int regulator_orientation(int16_t error);
+static uint8_t index_highest_sensor_value(void);
 
 static THD_WORKING_AREA(distance_thd_wa, 512);
 static THD_FUNCTION(distance_thd, arg) {
@@ -64,7 +64,6 @@ static THD_FUNCTION(distance_thd, arg) {
 
 		update_data();
 
-		//chprintf((BaseSequentialStream *)&SD3, "dist_r = %d \n", sensor_value[RIGHT]);
 		chThdSleepUntilWindowed(time, time + MS2ST(THREAD_PERIOD));
 
 	}
@@ -88,23 +87,35 @@ static int regulator_orientation(int16_t error)
 	static float Ki = 0.05;
 	static uint8_t Kd = 20;
 
-	static int16_t old_error = 0;
-	int16_t orientation_pid =0;
+	static int16_t old_error = NULL;
+	int16_t orientation_pid =NULL;
 
-	static int16_t derivee = 0;//debug
+	static int16_t derivee = NULL;//debug
 
 	integrale += Ki *error*dt;
 	derivee = error-old_error;//debug
 
-	if(integrale > OR_ARW_MAX)
-			integrale = OR_ARW_MAX;
-	else if (integrale < OR_ARW_MIN )
-			integrale = OR_ARW_MIN;
+	if(integrale > ARW_MAX)
+			integrale = ARW_MAX;
+	else if (integrale < ARW_MIN )
+			integrale = ARW_MIN;
 
 	orientation_pid = Kp*error + integrale + (Kd*(error-old_error))/dt;
 	old_error = error;
-	chprintf((BaseSequentialStream *)&SD3, "integral = %d  derivee = %d error=%d ", integrale, derivee, error);
+	//chprintf((BaseSequentialStream *)&SD3, "integral = %d  derivee = %d error=%d ", integrale, derivee, error); //debug
 	return orientation_pid;
+}
+
+static uint8_t index_highest_sensor_value(void){
+	uint16_t max=NULL;
+	uint8_t max_sensor_index=NULL;
+	for(uint8_t i=0; i<NB_PROX_SENSOR;i++){
+		if(sensor_value[i]>max){
+			max=sensor_value[i];
+			max_sensor_index = i;
+		}
+	}
+	return max_sensor_index;
 }
 
 
@@ -137,30 +148,18 @@ bool is_there_obstacle(void){
 	return false;
 }
 
-uint8_t index_highest_sensor_value(void){
-	uint16_t max=0;
-	uint8_t max_sensor_index=0;
-	for(uint8_t i=0; i<NB_PROX_SENSOR;i++){
-		if(sensor_value[i]>max){
-			max=sensor_value[i];
-			max_sensor_index = i;
-		}
-	}
-	return max_sensor_index;
-}
-
 void avoid_obstacle(int* speed){
 	uint8_t index_sensor_max = index_highest_sensor_value();
-	static int16_t error_orientation = 0;
-	static int16_t error_distance_to_wall = 0;
-	static int8_t previous_state = 0;
+	static int16_t error_orientation = NULL;
+	static int16_t error_distance_to_wall = NULL;
+	static int8_t previous_state = NULL;
 
 	switch(index_sensor_max){
 		case FRONT_RIGHT :
 		case BACK_RIGHT :
 		case RIGHT :
 			if((previous_state == FRONT_LEFT) || (previous_state == BACK_LEFT) || (previous_state == LEFT)){
-				integrale = 0; //s'il y a un changement d'état, on remet l'integrale de l'erreur à zero
+				integrale = NULL; //s'il y a un changement d'état, on remet l'integrale de l'erreur à zero
 			}
 			error_distance_to_wall = SAFE_DISTANCE - sensor_value[RIGHT];
 			error_orientation=sensor_value[FRONT_RIGHT]-sensor_value[BACK_RIGHT];
@@ -172,7 +171,7 @@ void avoid_obstacle(int* speed){
 		case BACK_LEFT :
 		case LEFT :
 			if((previous_state == FRONT_RIGHT) || (previous_state == BACK_RIGHT) || (previous_state == RIGHT)){
-				integrale = 0; //s'il y a un changement d'état, on remet l'integrale de l'erreur à zero
+				integrale = NULL; //s'il y a un changement d'état, on remet l'integrale de l'erreur à zero
 			}
 			error_distance_to_wall = SAFE_DISTANCE - sensor_value[LEFT];
 			error_orientation=sensor_value[FRONT_LEFT]-sensor_value[BACK_LEFT];
