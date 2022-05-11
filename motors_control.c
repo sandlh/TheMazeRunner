@@ -1,6 +1,6 @@
 #include "motors_control.h"
 #include "orientation.h"
-#include "distance.h"
+
 
 #include <msgbus/messagebus.h>
 
@@ -16,17 +16,17 @@
 #include <math.h>
 
 
-#define Kd 0  // 0.0015
-#define Ki 0   //0.003
-#define Kp 0.001   //0.01
+#define Kd 15  // 0.0015
+#define Ki 30   //0.003
+#define Kp 10  //0.01
 #define THREAD_TIME 4 //[ms]
 #define AWM_MAX  100
 #define AWM_MIN  -AWM_MAX
 
 #define NORME_MAX 5000
-#define NORME_MIN 1500
+#define NORME_MIN 500
 
-#define ACC_MAX 1000
+#define ACC_MAX 10000
 
 #define FRONT_LEFT 0
 #define FRONT_RIGHT 1
@@ -38,7 +38,7 @@
 #define SPEED_MIN 0
 
 #define MAX_COEFF 1
-#define ROTATION_COEFF 10
+#define ROTATION_COEFF 200
 
 static void set_motors_speed(int16_t speed_ext, float speed_int, int8_t mode_deplacement);
 static float regulator_speed(int16_t error);
@@ -73,15 +73,18 @@ static THD_FUNCTION(motor_control_thd, arg)
     	int16_t speed_ext = 0;
     	int16_t speed_int = 0;
     	int16_t speed_prop = 0;
+
+
+    	speed_prop = speed_proportionelle(norme);
+
     	float pid = 0;
     	pid = regulator_speed(error);
     	float speed_correct;
 
-    	speed_prop = speed_proportionelle(norme);
-
+    	speed_correct = coeff_int(pid);
     	//chprintf((BaseSequentialStream *)&SD3, "speed_prop = %d \n", speed_ext); //prints
-    	speed_ext = speed_prop; //- ROTATION_COEFF * speed_correct;
-    	speed_int = speed_prop; //+ ROTATION_COEFF * speed_correct;
+    	speed_ext = speed_prop + ROTATION_COEFF * speed_correct;
+    	speed_int = speed_prop - ROTATION_COEFF * speed_correct;
 
 		/*
     	float speed_int = 0;
@@ -133,7 +136,7 @@ static float coeff_int(float pid)  // enlever les valeurs numériques
 		pid = ACC_MAX;
 	}
 	coeff_int =  pid/ACC_MAX;
-	//chprintf((BaseSequentialStream *)&SD3, "coeff_int = %f \n", coeff_int); //prints
+	chprintf((BaseSequentialStream *)&SD3, "coeff_int = %f \n", coeff_int); //prints
 
 	return coeff_int;
 }
