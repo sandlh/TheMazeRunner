@@ -19,7 +19,7 @@ uint16_t get_distance_back_left(void);
 uint16_t get_distance_right(void);
 uint16_t get_distance_left(void);
 bool is_there_obstacle(void);
-void avoid_obstacle(int* speed);
+void avoid_obstacle(int speed);
 int get_speed_right(void);
 int get_speed_left(void);
 

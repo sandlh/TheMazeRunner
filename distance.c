@@ -148,7 +148,7 @@ bool is_there_obstacle(void){
 	return false;
 }
 
-void avoid_obstacle(int* speed){
+void avoid_obstacle(int speed){
 	uint8_t index_sensor_max = index_highest_sensor_value();
 	static int16_t error_orientation = NULL;
 	static int16_t error_distance_to_wall = NULL;
@@ -164,8 +164,8 @@ void avoid_obstacle(int* speed){
 			error_distance_to_wall = SAFE_DISTANCE - sensor_value[RIGHT];
 			error_orientation=sensor_value[FRONT_RIGHT]-sensor_value[BACK_RIGHT];
 
-			new_speed[0]=400+regulator_orientation(error_orientation)-error_distance_to_wall;
-			new_speed[1]=400-regulator_orientation(error_orientation)+error_distance_to_wall;
+			new_speed[0]=speed+regulator_orientation(error_orientation)-error_distance_to_wall;
+			new_speed[1]=speed-regulator_orientation(error_orientation)+error_distance_to_wall;
 			break;
 		case FRONT_LEFT :
 		case BACK_LEFT :
@@ -176,8 +176,8 @@ void avoid_obstacle(int* speed){
 			error_distance_to_wall = SAFE_DISTANCE - sensor_value[LEFT];
 			error_orientation=sensor_value[FRONT_LEFT]-sensor_value[BACK_LEFT];
 
-			new_speed[0]=400-regulator_orientation(error_orientation)+error_distance_to_wall;
-			new_speed[1]=400+regulator_orientation(error_orientation)-error_distance_to_wall;
+			new_speed[0]=speed-regulator_orientation(error_orientation)+error_distance_to_wall;
+			new_speed[1]=speed+regulator_orientation(error_orientation)-error_distance_to_wall;
 			break;
 		default :
 			break;
