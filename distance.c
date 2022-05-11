@@ -47,7 +47,7 @@ static THD_FUNCTION(distance_thd, arg) {
 
 		update_data();
 
-		chprintf((BaseSequentialStream *)&SD3, "dist_f_l = %d   dist_f_r = %d  dist_l= %d  \n", distance_front_left, distance_front_right, distance_left);
+		//chprintf((BaseSequentialStream *)&SD3, "dist_f_l = %d   dist_f_r = %d  dist_l= %d  \n", distance_front_left, distance_front_right, distance_left);
 
 		chThdSleepUntilWindowed(time, time + MS2ST(THREAD_PERIOD));
 

@@ -16,15 +16,15 @@
 #include <math.h>
 
 
-#define Kd 0.011  // 0.0015
-#define Ki 0.0025   //0.003
-#define Kp 0.05    //0.01
+#define Kd 0  // 0.0015
+#define Ki 0   //0.003
+#define Kp 0.001   //0.01
 #define THREAD_TIME 4 //[ms]
 #define AWM_MAX  100
 #define AWM_MIN  -AWM_MAX
 
 #define NORME_MAX 5000
-#define NORME_MIN 1000
+#define NORME_MIN 1500
 
 #define ACC_MAX 1000
 
@@ -38,6 +38,7 @@
 #define SPEED_MIN 0
 
 #define MAX_COEFF 1
+#define ROTATION_COEFF 10
 
 static void set_motors_speed(int16_t speed_ext, float speed_int, int8_t mode_deplacement);
 static float regulator_speed(int16_t error);
@@ -70,9 +71,19 @@ static THD_FUNCTION(motor_control_thd, arg)
     	//chprintf((BaseSequentialStream *)&SD3, "mode = %d \n", mode_deplacement);
 
     	int16_t speed_ext = 0;
-    	speed_ext = speed_proportionelle(norme);
-    	chprintf((BaseSequentialStream *)&SD3, "speed_prop = %d \n", speed_ext); //prints
+    	int16_t speed_int = 0;
+    	int16_t speed_prop = 0;
+    	float pid = 0;
+    	pid = regulator_speed(error);
+    	float speed_correct;
 
+    	speed_prop = speed_proportionelle(norme);
+
+    	//chprintf((BaseSequentialStream *)&SD3, "speed_prop = %d \n", speed_ext); //prints
+    	speed_ext = speed_prop; //- ROTATION_COEFF * speed_correct;
+    	speed_int = speed_prop; //+ ROTATION_COEFF * speed_correct;
+
+		/*
     	float speed_int = 0;
     	float pid = 0;
     	pid = regulator_speed(error);
@@ -82,8 +93,12 @@ static THD_FUNCTION(motor_control_thd, arg)
 
     	}
     	speed_int = speed_ext*coeff_int( pid);
+	*/
+    	if (speed_ext > SPEED_MAX){
+    	    	 		speed_ext = SPEED_MAX;
 
-    	chprintf((BaseSequentialStream *)&SD3, "speed_int = %f \n", speed_int); //prints
+    	    	}
+    	//chprintf((BaseSequentialStream *)&SD3, "speed_int = %f \n", speed_int); //prints
 
     	set_motors_speed(speed_ext, speed_int, mode_deplacement);
 
@@ -112,13 +127,13 @@ static float coeff_int(float pid)  // enlever les valeurs numériques
 	//chprintf((BaseSequentialStream *)&SD3, "error = %d \n", error); //prints
 
 
-	chprintf((BaseSequentialStream *)&SD3, "coeff= %f \n", pid); //prints
+	//chprintf((BaseSequentialStream *)&SD3, "coeff= %f \n", pid); //prints
 
 	if (pid > ACC_MAX){
 		pid = ACC_MAX;
 	}
-	coeff_int = MAX_COEFF - pid/ACC_MAX;
-	chprintf((BaseSequentialStream *)&SD3, "coeff_int = %f \n", coeff_int); //prints
+	coeff_int =  pid/ACC_MAX;
+	//chprintf((BaseSequentialStream *)&SD3, "coeff_int = %f \n", coeff_int); //prints
 
 	return coeff_int;
 }
@@ -141,13 +156,13 @@ static float regulator_speed(int16_t error)  //voir si je peux le mettre en int
 		else if (integrale < AWM_MIN )
 				integrale = AWM_MIN;
 
-		chprintf((BaseSequentialStream *)&SD3, "error = %d \n", error); //prints
+		//chprintf((BaseSequentialStream *)&SD3, "error = %d \n", error); //prints
 
 		speed_pid = Kp*error + integrale + Kd*(error-ancienne_erreur)/dt;
 		ancienne_erreur = error;
-		chprintf((BaseSequentialStream *)&SD3, "error2 = %d \n", ancienne_erreur); //prints
+		//chprintf((BaseSequentialStream *)&SD3, "error2 = %d \n", ancienne_erreur); //prints
 
-    	chprintf((BaseSequentialStream *)&SD3, "speed_PID = %f \n", speed_pid); //prints
+    	//chprintf((BaseSequentialStream *)&SD3, "speed_PID = %f \n", speed_pid); //prints
 		return speed_pid;
 	}
 
@@ -183,3 +198,6 @@ void motors_control_start(void)
 
 	chThdCreateStatic(motor_control_thd_wa, sizeof(motor_control_thd_wa), NORMALPRIO+1, motor_control_thd, NULL);
 }
+
+
+
