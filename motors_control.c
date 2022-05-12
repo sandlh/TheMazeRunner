@@ -16,15 +16,15 @@
 #include <math.h>
 
 
-#define Kd 15  // 0.0015
-#define Ki 30   //0.003
-#define Kp 10  //0.01
+#define Kd 0.15  // 0.0015
+#define Ki 3   //0.003
+#define Kp 1.5  //0.01
 #define THREAD_TIME 4 //[ms]
 #define AWM_MAX  100
 #define AWM_MIN  -AWM_MAX
 
 #define NORME_MAX 5000
-#define NORME_MIN 500
+#define NORME_MIN 1000
 
 #define ACC_MAX 10000
 
@@ -34,19 +34,20 @@
 #define MODE_BACK_LEFT 3
 
 #define SPEED_COEFF 5
-#define SPEED_MAX 1000
+#define SPEED_MAX 1100
 #define SPEED_MIN 0
 
 #define MAX_COEFF 1
-#define ROTATION_COEFF 200
+#define ROTATION_COEFF 300
 
-static void set_motors_speed(int16_t speed_ext, float speed_int, int8_t mode_deplacement);
+static int16_t speed_ext = 0;
+static int16_t speed_int = 0;
+
+static void set_motors_speed(int16_t speed_ext, float speed_int);
 static float regulator_speed(int16_t error);
 
 static int16_t speed_proportionelle(int16_t norme);
-static float coeff_int(float pid);
-void motors_control_start(void);
-
+static void calculate_speeds(int16_t speed_prop);
 
 static THD_WORKING_AREA(motor_control_thd_wa, 512);
 static THD_FUNCTION(motor_control_thd, arg)
@@ -54,46 +55,22 @@ static THD_FUNCTION(motor_control_thd, arg)
      (void) arg;
      chRegSetThreadName(__FUNCTION__);
 
-     int16_t error = 0;
-     int16_t norme = 0;
-     int8_t mode_deplacement = 0;
-     systime_t time;
+     int16_t speed_prop = 0;
 
+     systime_t time;
 
      while(true)
      {
     	time = chVTGetSystemTime();
-    	error = get_error();
-		//chprintf((BaseSequentialStream *)&SD3, "error = %d \n", error); //prints
 
-    	norme = get_norme();
-    	mode_deplacement = get_mode_deplacement();
-    	//chprintf((BaseSequentialStream *)&SD3, "mode = %d \n", mode_deplacement);
+    	speed_prop = speed_proportionelle(get_norme());
 
-    	int16_t speed_ext = 0;
-    	int16_t speed_int = 0;
-    	int16_t speed_prop = 0;
+    	 // if there_is _obstacles
+    	//integrale = 0;
+		calculate_speeds(speed_prop);
+    	set_motors_speed(speed_ext, speed_int);
 
-
-    	speed_prop = speed_proportionelle(norme);
-
-    	float pid = 0;
-    	pid = regulator_speed(error);
-    	float speed_correct;
-
-    	speed_correct = coeff_int(pid);
-    	//chprintf((BaseSequentialStream *)&SD3, "speed_prop = %d \n", speed_ext); //prints
-    	speed_ext = speed_prop + ROTATION_COEFF * speed_correct;
-    	speed_int = speed_prop - ROTATION_COEFF * speed_correct;
-
-
-    	if (speed_ext > SPEED_MAX){
-    	    	 		speed_ext = SPEED_MAX;
-
-    	    	}
-    	//chprintf((BaseSequentialStream *)&SD3, "speed_int = %f \n", speed_int); //prints
-
-    	set_motors_speed(speed_ext, speed_int, mode_deplacement);
+    	//else
 
 		chThdSleepUntilWindowed(time, time + MS2ST(THREAD_TIME));
      }
@@ -112,23 +89,19 @@ static int16_t speed_proportionelle(int16_t norme)
 	return speed;
 }
 
-static float coeff_int(float pid)  // enlever les valeurs numériques
+static void calculate_speeds(int16_t speed_prop)  // enlever les valeurs numériques
 {
-
-	float coeff_int;
-	//chprintf((BaseSequentialStream *)&SD3, "error = %d \n", error); //prints
-	//chprintf((BaseSequentialStream *)&SD3, "error = %d \n", error); //prints
-
-
-	//chprintf((BaseSequentialStream *)&SD3, "coeff= %f \n", pid); //prints
+	int16_t error = get_error();
+	float pid = regulator_speed(error);
 
 	if (pid > ACC_MAX){
 		pid = ACC_MAX;
 	}
-	coeff_int =  pid/ACC_MAX;
-	chprintf((BaseSequentialStream *)&SD3, "coeff_int = %f \n", coeff_int); //prints
+	float speed_correct =  pid/ACC_MAX; // verif valeur de ACC_MAX
 
-	return coeff_int;
+	speed_ext = speed_prop * (1+speed_correct);
+	speed_int = speed_prop * (1-speed_correct);
+
 }
 
 static float regulator_speed(int16_t error)  //voir si je peux le mettre en int
@@ -160,24 +133,24 @@ static float regulator_speed(int16_t error)  //voir si je peux le mettre en int
 	}
 
 
-static void set_motors_speed(int16_t speed_ext, float speed_int, int8_t mode_deplacement) // modifié
+static void set_motors_speed(int16_t speed_ext, float speed_int) // modifié
 {
 
-
+	int8_t mode_deplacement = get_mode_deplacement();
 	switch (mode_deplacement){
-			 case MODE_FRONT_LEFT:
+			 case MODE_FRONT_RIGHT:
 				 right_motor_set_speed(speed_int);
 				 left_motor_set_speed(speed_ext);
 				 break;
-			 case MODE_BACK_LEFT:
+			 case MODE_BACK_RIGHT:
 				 right_motor_set_speed(-speed_int);
 				 left_motor_set_speed(-speed_ext);
 				 break;
-			 case MODE_BACK_RIGHT:
+			 case MODE_BACK_LEFT:
 				 right_motor_set_speed(-speed_ext);
 				 left_motor_set_speed(-speed_int);
 				 break;
-			 case MODE_FRONT_RIGHT:
+			 case MODE_FRONT_LEFT:
 				 right_motor_set_speed(speed_ext);
 				 left_motor_set_speed(speed_int);
 				 break;
