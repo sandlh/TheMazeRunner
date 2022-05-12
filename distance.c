@@ -48,15 +48,14 @@
 #define NULL 0 //value to initialize parameters
 
 static uint16_t sensor_value[NB_PROX_SENSOR];
-static int new_speed[2];
-static int8_t integrale=NULL;
+//static int new_speed[2];
+//static int8_t integrale=NULL;
 
 static uint8_t mode_deplacement;
 
 /***************************INTERNAL FUNCTIONS************************************/
 static void update_data(void);
 static int regulator_orientation(int16_t error);
-static uint8_t index_highest_sensor_value(void);
 
 static THD_WORKING_AREA(distance_thd_wa, 512);
 static THD_FUNCTION(distance_thd, arg) {
@@ -87,7 +86,7 @@ static void update_data(void){
 	mode_deplacement = get_mode_deplacement();
 }
 
-static int regulator_orientation(int16_t error)
+/*static int regulator_orientation(int16_t error)
 {
 	//PID
 	uint8_t dt = THREAD_PERIOD;
@@ -112,19 +111,7 @@ static int regulator_orientation(int16_t error)
 	old_error = error;
 	//chprintf((BaseSequentialStream *)&SD3, "integral = %d  derivee = %d error=%d ", integrale, derivee, error); //debug
 	return orientation_pid;
-}
-
-static uint8_t index_highest_sensor_value(void){
-	uint16_t max=NULL;
-	uint8_t max_sensor_index=NULL;
-	for(uint8_t i=0; i<NB_PROX_SENSOR;i++){
-		if(sensor_value[i]>max){
-			max=sensor_value[i];
-			max_sensor_index = i;
-		}
-	}
-	return max_sensor_index;
-}
+}*/
 
 
 /*************************END INTERNAL FUNCTIONS**********************************/
@@ -143,8 +130,8 @@ bool is_there_obstacle(void){
 		(sensor_value[BACK_RIGHT] > SAFE_DISTANCE) ||		//then there is an obstacle to avoid
 		(sensor_value[RIGHT] > SAFE_DISTANCE) ||
 		((sensor_value[FRONT_RIGHT]+sensor_value[RIGHT]) > SAFE_DISTANCE) ||
-		((sensor_value[RIGHT]+sensor_value[BACK_RIGHT]) > SAFE_DISTANCE)) &&
-		((mode_deplacement == MODE_FRONT_RIGHT)||(mode_deplacement == MODE_BACK_RIGHT))){
+		((sensor_value[RIGHT]+sensor_value[BACK_RIGHT]) > SAFE_DISTANCE)) /*&&
+		((mode_deplacement == MODE_FRONT_RIGHT)||(mode_deplacement == MODE_BACK_RIGHT))*/){
 		//chprintf((BaseSequentialStream *)&SD3, " obstacle "); //debug
 		return true;
 
@@ -152,8 +139,8 @@ bool is_there_obstacle(void){
 			(sensor_value[BACK_LEFT] > SAFE_DISTANCE) ||	//then there is an obstacle to avoid
 			(sensor_value[LEFT] > SAFE_DISTANCE) ||
 			((sensor_value[BACK_LEFT]+sensor_value[LEFT]) > SAFE_DISTANCE) ||
-			((sensor_value[LEFT]+sensor_value[FRONT_LEFT]) > SAFE_DISTANCE)) &&
-			((mode_deplacement==MODE_FRONT_LEFT)||(mode_deplacement==MODE_BACK_LEFT))){
+			((sensor_value[LEFT]+sensor_value[FRONT_LEFT]) > SAFE_DISTANCE)) /*&&
+			((mode_deplacement==MODE_FRONT_LEFT)||(mode_deplacement==MODE_BACK_LEFT))*/){
 		//chprintf((BaseSequentialStream *)&SD3, " obstacle "); //debug
 		return true;
 
@@ -165,7 +152,19 @@ bool is_there_obstacle(void){
 	return false; //otherwise there is no obstacle to avoid
 }
 
-void avoid_obstacle(int speed){
+uint8_t index_highest_sensor_value(void){
+	uint16_t max=NULL;
+	uint8_t max_sensor_index=NULL;
+	for(uint8_t i=0; i<NB_PROX_SENSOR;i++){
+		if(sensor_value[i]>max){
+			max=sensor_value[i];
+			max_sensor_index = i;
+		}
+	}
+	return max_sensor_index;
+}
+
+/*void avoid_obstacle(int speed){
 	uint8_t index_sensor_max = index_highest_sensor_value();
 	static int16_t error_orientation = NULL;
 	static int16_t error_distance_to_wall = NULL;
@@ -199,7 +198,7 @@ void avoid_obstacle(int speed){
 		default :
 			break;
 	}
-}
+}*/
 
 
 uint16_t get_distance_front_right(void){
@@ -226,14 +225,21 @@ uint16_t get_distance_left(void){
 	return sensor_value[LEFT];
 }
 
-int get_speed_right(void){
-	return new_speed[0];
+int16_t get_error_distance_to_wall_right(void){
+	return (SAFE_DISTANCE - sensor_value[RIGHT]);
 }
 
-int get_speed_left(void){
-	return new_speed[1];
+int16_t get_error_distance_to_wall_left(void){
+	return (SAFE_DISTANCE - sensor_value[LEFT]);
 }
 
+int16_t get_error_orientation_right(void){
+	return (sensor_value[FRONT_RIGHT]-sensor_value[BACK_RIGHT]);
+}
+
+int16_t get_error_orientation_left(void){
+	return (sensor_value[FRONT_LEFT]-sensor_value[BACK_LEFT]);
+}
 
 /**************************END PUBLIC FUNCTIONS***********************************/
 

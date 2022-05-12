@@ -18,10 +18,14 @@ uint16_t get_distance_back_right(void);
 uint16_t get_distance_back_left(void);
 uint16_t get_distance_right(void);
 uint16_t get_distance_left(void);
+int16_t get_error_distance_to_wall_right(void);
+int16_t get_error_distance_to_wall_left(void);
+int16_t get_error_orientation_right(void);
+int16_t get_error_orientation_left(void);
+
 bool is_there_obstacle(void);
-void avoid_obstacle(int speed);
-int get_speed_right(void);
-int get_speed_left(void);
+uint8_t index_highest_sensor_value(void);
+
 
 
 #endif /* DISTANCE_H_ */

@@ -12,7 +12,7 @@
 #define THREAD_PERIOD	4//[ms]
 
 #define PI 3.14
-#define CUTOFFREQUENCY 0.0010
+#define CUTOFFREQUENCY 0.00015
 #define TAU 1/(2*PI*CUTOFFREQUENCY)
 #define ALPHA THREAD_PERIOD/(TAU +THREAD_PERIOD)
 
@@ -60,7 +60,7 @@ static THD_FUNCTION(imu_reader_thd, arg) {
 	}
 }
 
-static void update_data(void) // quand je veux tourner mon acceleration en x est mon erreur dans un deuxième temps y pour la vitesse
+static void update_data(void) // changé
 {
 	int16_t acceleration_x = (int16_t)get_acc(X_AXIS); // il faudrait créer notre propre filtre
 	int16_t acceleration_y = (int16_t)get_acc(Y_AXIS);
@@ -79,13 +79,13 @@ static void update_data(void) // quand je veux tourner mon acceleration en x est
 	//chprintf((BaseSequentialStream *)&SD3, "error = %d \n", error);
 
 	if ((acceleration_x*acceleration_y >= 0) && (acceleration_y >=0)){
-		mode_deplacement = MODE_FRONT_RIGHT ;   // roue ext = roue gauche
+		mode_deplacement = MODE_BACK_RIGHT ;   // roue ext = roue gauche
 	}else if ((acceleration_x*acceleration_y >= 0) && (acceleration_y < 0)){
-		mode_deplacement = MODE_BACK_LEFT;
-	}else if ((acceleration_x*acceleration_y < 0) && (acceleration_y >= 0)){
 		mode_deplacement = MODE_FRONT_LEFT;
+	}else if ((acceleration_x*acceleration_y < 0) && (acceleration_y >= 0)){
+		mode_deplacement = MODE_BACK_LEFT;
 	}else {
-		mode_deplacement = MODE_BACK_RIGHT;
+		mode_deplacement = MODE_FRONT_RIGHT;
 	}
 	//chprintf((BaseSequentialStream *)&SD3, "mode = %d \n", mode_deplacement);
 
