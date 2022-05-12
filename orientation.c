@@ -79,13 +79,13 @@ static void update_data(void) // changé
 	//chprintf((BaseSequentialStream *)&SD3, "error = %d \n", error);
 
 	if ((acceleration_x*acceleration_y >= 0) && (acceleration_y >=0)){
-		mode_deplacement = MODE_BACK_RIGHT ;   // roue ext = roue gauche
+		mode_deplacement = MODE_BACK_LEFT ;   // roue ext = roue gauche
 	}else if ((acceleration_x*acceleration_y >= 0) && (acceleration_y < 0)){
-		mode_deplacement = MODE_FRONT_LEFT;
-	}else if ((acceleration_x*acceleration_y < 0) && (acceleration_y >= 0)){
-		mode_deplacement = MODE_BACK_LEFT;
-	}else {
 		mode_deplacement = MODE_FRONT_RIGHT;
+	}else if ((acceleration_x*acceleration_y < 0) && (acceleration_y >= 0)){
+		mode_deplacement = MODE_BACK_RIGHT;
+	}else {
+		mode_deplacement = MODE_FRONT_LEFT;
 	}
 	//chprintf((BaseSequentialStream *)&SD3, "mode = %d \n", mode_deplacement);
 
