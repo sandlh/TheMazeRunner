@@ -46,23 +46,23 @@ static THD_FUNCTION(imu_reader_thd, arg) {
 
      (void) arg;
      chRegSetThreadName(__FUNCTION__);
-     messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");// à comprendre
+     messagebus_topic_t *imu_topic = messagebus_find_topic_blocking(&bus, "/imu");// ï¿½ comprendre
      imu_msg_t imu_values;
 	 systime_t time;
 
 	while(1){
 
 		time = chVTGetSystemTime();
-		messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));// à comprendre
+		messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));// ï¿½ comprendre
 		update_data();
 		chThdSleepUntilWindowed(time, time + MS2ST(THREAD_PERIOD));
 
 	}
 }
 
-static void update_data(void) // changé
+static void update_data(void) // changï¿½
 {
-	int16_t acceleration_x = (int16_t)get_acc(X_AXIS); // il faudrait créer notre propre filtre
+	int16_t acceleration_x = (int16_t)get_acc(X_AXIS); // il faudrait crï¿½er notre propre filtre
 	int16_t acceleration_y = (int16_t)get_acc(Y_AXIS);
 
 
