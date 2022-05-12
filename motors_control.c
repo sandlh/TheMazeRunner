@@ -16,9 +16,9 @@
 #include <math.h>
 
 
-#define KD_SPEED 15  // 0.0015
-#define KI_SPEED 30   //0.003
-#define KP_SPEED 10  //0.01
+#define KD_SPEED 0.15
+#define KI_SPEED 3
+#define KP_SPEED 1.5
 #define THREAD_TIME 4 //[ms]
 #define AWM_MAX  100
 #define AWM_MIN  -AWM_MAX
@@ -55,12 +55,11 @@ static float regulator_speed(int16_t error);
 static int16_t speed_proportionelle(int16_t norme);
 static void calculate_speeds(int16_t speed_prop);
 
-static void set_motors_speed_obstacle(int16_t speed_ext, int16_t speed_int, int8_t mode_deplacement);
+static void set_motors_speed_obstacle(int16_t speed_ext, int16_t speed_int);
 
 static int16_t speed_ext = 0;
 static int16_t speed_int = 0;
 static int8_t integrale_pid_orientation=0;
-static int new_speed[2];
 static int16_t regulator_orientation(int16_t error);
 static void avoid_obstacle(int16_t speed_prop);
 
@@ -83,17 +82,14 @@ static THD_FUNCTION(motor_control_thd, arg)
 
 	    	if(is_there_obstacle()){
 		    	avoid_obstacle(speed_prop);
-		    	set_motors_speed_obstacle(speed_ext, speed_int, get_mode_deplacement()); // if there_is _obstacles
+		    	set_motors_speed_obstacle(speed_ext, speed_int);
 	    	}else{
-	    	//integrale = 0;
+	    	integrale_pid_orientation = 0;
 			calculate_speeds(speed_prop);
-	    	set_motors_speed(speed_ext, speed_int);
+	    	set_motors_speed(-400, -400);
 	    	}
 
-	    	//else
-
 			chThdSleepUntilWindowed(time, time + MS2ST(THREAD_TIME));
-
 
      }
 }
@@ -155,12 +151,9 @@ static float regulator_speed(int16_t error)  //voir si je peux le mettre en int
 		return speed_pid;
 	}
 
-
 static void set_motors_speed(int16_t speed_ext, float speed_int) // modifié
 {
-
-	int8_t mode_deplacement = get_mode_deplacement();
-	switch (mode_deplacement){
+	switch (get_mode_deplacement()){
 			 case MODE_FRONT_RIGHT:
 				 right_motor_set_speed(speed_int);
 				 left_motor_set_speed(speed_ext);
@@ -237,10 +230,9 @@ static void avoid_obstacle(int16_t speed_prop){
 	}
 }
 
-static void set_motors_speed_obstacle(int16_t speed_ext, int16_t speed_int, int8_t mode_deplacement) // modifié
+static void set_motors_speed_obstacle(int16_t speed_ext, int16_t speed_int) // modifié
 {
-
-	switch (mode_deplacement){
+	switch (get_mode_deplacement()){
 			 case MODE_FRONT_LEFT:
 				 right_motor_set_speed(speed_int);
 				 left_motor_set_speed(speed_ext);
