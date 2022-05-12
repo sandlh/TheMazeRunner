@@ -28,10 +28,10 @@
 
 #define ACC_MAX 10000
 
-#define FRONT_LEFT 0
-#define FRONT_RIGHT 1
-#define BACK_RIGHT 2
-#define BACK_LEFT 3
+#define MODE_FRONT_LEFT 0
+#define MODE_FRONT_RIGHT 1
+#define MODE_BACK_RIGHT 2
+#define MODE_BACK_LEFT 3
 
 #define SPEED_COEFF 5
 #define SPEED_MAX 1000
@@ -86,17 +86,7 @@ static THD_FUNCTION(motor_control_thd, arg)
     	speed_ext = speed_prop + ROTATION_COEFF * speed_correct;
     	speed_int = speed_prop - ROTATION_COEFF * speed_correct;
 
-		/*
-    	float speed_int = 0;
-    	float pid = 0;
-    	pid = regulator_speed(error);
-    	 chprintf((BaseSequentialStream *)&SD3, "pid = %f \n", pid);
-    	 if (speed_ext > SPEED_MAX){
-    	 		speed_ext = SPEED_MAX;
 
-    	}
-    	speed_int = speed_ext*coeff_int( pid);
-	*/
     	if (speed_ext > SPEED_MAX){
     	    	 		speed_ext = SPEED_MAX;
 
@@ -170,26 +160,26 @@ static float regulator_speed(int16_t error)  //voir si je peux le mettre en int
 	}
 
 
-static void set_motors_speed(int16_t speed_ext, float speed_int, int8_t mode_deplacement)
+static void set_motors_speed(int16_t speed_ext, float speed_int, int8_t mode_deplacement) // modifié
 {
 
 
 	switch (mode_deplacement){
-			 case FRONT_LEFT:
-				 right_motor_set_speed(-speed_int);
-				 left_motor_set_speed(-speed_ext);
-				 break;
-			 case BACK_LEFT:
+			 case MODE_FRONT_LEFT:
 				 right_motor_set_speed(speed_int);
 				 left_motor_set_speed(speed_ext);
 				 break;
-			 case BACK_RIGHT:
-				 right_motor_set_speed(speed_ext);
-				 left_motor_set_speed(speed_int);
+			 case MODE_BACK_LEFT:
+				 right_motor_set_speed(-speed_int);
+				 left_motor_set_speed(-speed_ext);
 				 break;
-			 case FRONT_RIGHT:
+			 case MODE_BACK_RIGHT:
 				 right_motor_set_speed(-speed_ext);
 				 left_motor_set_speed(-speed_int);
+				 break;
+			 case MODE_FRONT_RIGHT:
+				 right_motor_set_speed(speed_ext);
+				 left_motor_set_speed(speed_int);
 				 break;
 		 }
 }
