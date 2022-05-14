@@ -25,6 +25,7 @@
 static int16_t error = 0;
 static int16_t norme =0;
 static int8_t mode_deplacement = 0;
+static int16_t acc_y=0;
 
 
 messagebus_t bus;
@@ -76,6 +77,7 @@ static void update_data(void) // chang�
 	norme = sqrt(acceleration_x*acceleration_x + acceleration_y*acceleration_y);
 	//chprintf((BaseSequentialStream *)&SD3, "norme = %d \n", norme); //prints
 	error = acceleration_x;
+	acc_y = acceleration_y;
 	//chprintf((BaseSequentialStream *)&SD3, "error = %d \n", error);
 
 	if ((acceleration_x*acceleration_y >= 0) && (acceleration_y >=0)){
@@ -136,6 +138,10 @@ int8_t get_mode_deplacement(void)
 
 float get_cos_gravity(void){
 	return ((float)error/(float)norme);
+}
+
+float get_sin_gravity(void){
+	return ((float)acc_y/(float)norme);
 }
 
 

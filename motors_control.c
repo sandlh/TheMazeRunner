@@ -182,9 +182,9 @@ static int16_t regulator_orientation(int16_t error)
 {
 	//PID
 	uint8_t dt = THREAD_TIME;
-	static uint8_t Kp = 10;
-	static float Ki = 0.5;
-	static uint8_t Kd = 10;
+	static uint8_t Kp = 4;
+	static float Ki = 1;
+	static uint8_t Kd = 20;
 
 	static int16_t old_error = ZERO;
 	int16_t orientation_pid =ZERO;
@@ -215,7 +215,7 @@ static void avoid_obstacle(int16_t speed_prop){
 
 	//int16_t error = get_error();
 	//int16_t norme = get_norme();
-	float cos_gravity = get_cos_gravity();
+	float cos_gravity = fabs(get_cos_gravity());
 	//chprintf((BaseSequentialStream *)&SD3, "  cos = %f error=%d  norme=%d", cos_gravity, error, norme); //debug
 
 	switch(index_sensor_max){
@@ -238,14 +238,20 @@ static void avoid_obstacle(int16_t speed_prop){
 	int16_t pid_orientation=regulator_orientation(error_orientation);
 	speed_ext=pid_orientation;
 	speed_int=-pid_orientation;
-	/*if((mode_deplacement==FRONT_RIGHT) || (mode_deplacement==FRONT_LEFT)){
+
+	if((mode_deplacement==FRONT_RIGHT) || (mode_deplacement==FRONT_LEFT)){
 		speed_ext=400+pid_orientation-error_distance_to_wall;
 		speed_int=400-pid_orientation+error_distance_to_wall;
 		//chprintf((BaseSequentialStream *)&SD3, "  dis_to_wall=%d   pid=%d   ", error_distance_to_wall,pid_orientation); //debug
 	}else{
-		speed_ext=-400-pid_orientation-error_distance_to_wall;
-		speed_int=-400+pid_orientation+error_distance_to_wall;
-	}if(((fabs(cos_gravity)<0.25)&&((index_sensor_max==FRONT_RIGHT)||(index_sensor_max==FRONT_LEFT)))&&
+		speed_ext=-400+pid_orientation+error_distance_to_wall;
+		speed_int=-400-pid_orientation-error_distance_to_wall;
+	}
+	if(speed_prop==0){
+		speed_ext=0;
+		speed_int=0;
+	}
+	/*if(((fabs(cos_gravity)<0.25)&&((index_sensor_max==FRONT_RIGHT)||(index_sensor_max==FRONT_LEFT)))&&
 			((mode_deplacement==FRONT_RIGHT)||(mode_deplacement==FRONT_LEFT))){
 		speed_int= 0;
 		speed_ext=0;
@@ -263,27 +269,6 @@ static void avoid_obstacle(int16_t speed_prop){
 		 right_motor_set_speed(speed_int);
 		 left_motor_set_speed(speed_ext);
 	}
-
-
-	/*if((mode_deplacement==FRONT_RIGHT) || (mode_deplacement==FRONT_LEFT)){
-		speed_ext=/00+pid_orientation-error_distance_to_wall;
-		speed_int=400-pid_orientation+error_distance_to_wall;
-		//chprintf((BaseSequentialStream *)&SD3, "  dis_to_wall=%d   pid=%d   ", error_distance_to_wall,pid_orientation); //debug
-	/*}else{
-		speed_ext=-400-pid_orientation+error_distance_to_wall;
-		speed_int=-400+pid_orientation-error_distance_to_wall;
-	}*/
-
-	/*if(((fabs(cos_gravity)<0.25)&&((index_sensor_max==FRONT_RIGHT)||(index_sensor_max==FRONT_LEFT)))&&
-				((mode_deplacement==FRONT_RIGHT)||(mode_deplacement==FRONT_LEFT))){
-			speed_int= 0;
-			speed_ext=0;
-			//chprintf((BaseSequentialStream *)&SD3, "  cos = %f ", cos_gravity); //debug
-	}else if(((fabs(cos_gravity)<0.25)&&((index_sensor_max==BACK_RIGHT)||(index_sensor_max==BACK_LEFT)))&&
-				((mode_deplacement==BACK_RIGHT)||(mode_deplacement==BACK_LEFT))){
-		speed_int= 0;
-		speed_ext=0;
-	}*/
 }
 
 static void set_motors_speed_obstacle(int16_t speed_ext, int16_t speed_int) // modifi�
