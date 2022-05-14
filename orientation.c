@@ -75,7 +75,7 @@ static void update_data(void) // chang�
 
 	norme = sqrt(acceleration_x*acceleration_x + acceleration_y*acceleration_y);
 	//chprintf((BaseSequentialStream *)&SD3, "norme = %d \n", norme); //prints
-	error = fabs(acceleration_x);
+	error = acceleration_x;
 	//chprintf((BaseSequentialStream *)&SD3, "error = %d \n", error);
 
 	if ((acceleration_x*acceleration_y >= 0) && (acceleration_y >=0)){
@@ -132,6 +132,10 @@ int16_t get_norme(void)
 int8_t get_mode_deplacement(void)
 {
 	return mode_deplacement;
+}
+
+float get_cos_gravity(void){
+	return ((float)error/(float)norme);
 }
 
 

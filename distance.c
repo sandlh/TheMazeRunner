@@ -24,7 +24,8 @@
 #define SENSOR_RIGHT 2
 #define SENSOR_LEFT 5
 
-#define SAFE_DISTANCE 100 //security distance for wall following
+#define SAFE_DISTANCE 80 //security distance for wall following
+#define DISTANCE_FOLLOW_WALL 120
 
 #define ARW_MAX 50 //anti rewind max and min values for orientation PID
 #define ARW_MIN -50
@@ -128,6 +129,7 @@ void distance_start(void){
 }
 
 bool is_there_obstacle(void){
+	float cos_gravity=get_cos_gravity();
 
 	if(((sensor_value[FRONT_RIGHT] > SAFE_DISTANCE)||	//tests if obstacle towards front right and if gravity is in the same direction
 		(sensor_value[RIGHT] > SAFE_DISTANCE)||
@@ -161,9 +163,21 @@ bool is_there_obstacle(void){
 
 			return true;
 
+	}else if((((sensor_value[FRONT_RIGHT])>SAFE_DISTANCE)||
+			(sensor_value[RIGHT]>SAFE_DISTANCE)||
+			(sensor_value[BACK_RIGHT]>SAFE_DISTANCE)||
+			((sensor_value[BACK_RIGHT]+sensor_value[RIGHT]) > SAFE_DISTANCE)||
+			((sensor_value[FRONT_RIGHT]+sensor_value[RIGHT]) > SAFE_DISTANCE))&&
+			(cos_gravity<0.25)){
+		return true;
+	}else if((((sensor_value[FRONT_LEFT])>SAFE_DISTANCE)||
+			(sensor_value[LEFT]>SAFE_DISTANCE)||
+			(sensor_value[BACK_LEFT]>SAFE_DISTANCE)||
+			((sensor_value[BACK_LEFT]+sensor_value[LEFT]) > SAFE_DISTANCE)||
+			((sensor_value[FRONT_LEFT]+sensor_value[LEFT]) > SAFE_DISTANCE))&&
+			(cos_gravity>(-0.25))){
+		return true;
 	}
-
-		//chprintf((BaseSequentialStream *)&SD3, " obstacle "); //debug
 
 
 	return false; //otherwise there is no obstacle to avoid
@@ -243,11 +257,11 @@ uint16_t get_distance_left(void){
 }
 
 int16_t get_error_distance_to_wall_right(void){
-	return (SAFE_DISTANCE - sensor_value[RIGHT]);
+	return (DISTANCE_FOLLOW_WALL - sensor_value[RIGHT]);
 }
 
 int16_t get_error_distance_to_wall_left(void){
-	return (SAFE_DISTANCE - sensor_value[LEFT]);
+	return (DISTANCE_FOLLOW_WALL - sensor_value[LEFT]);
 }
 
 int16_t get_error_orientation_right(void){

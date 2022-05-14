@@ -8,5 +8,6 @@ void orientation_start(void);
 int16_t get_error(void);
 int16_t get_norme(void);
 int8_t get_mode_deplacement(void);
+float get_cos_gravity(void);
 
 #endif
