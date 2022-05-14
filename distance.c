@@ -45,7 +45,7 @@
 
 #define NB_PROX_SENSOR 6
 
-#define NULL 0 //value to initialize parameters
+#define ZERO 0 //value to initialize parameters
 
 static uint16_t sensor_value[NB_PROX_SENSOR];
 //static int new_speed[2];
@@ -128,35 +128,50 @@ void distance_start(void){
 }
 
 bool is_there_obstacle(void){
-	if(	((sensor_value[FRONT_RIGHT] > SAFE_DISTANCE) ||		//if obstacle on the right and gravity towards the right
-		(sensor_value[BACK_RIGHT] > SAFE_DISTANCE) ||		//then there is an obstacle to avoid
-		(sensor_value[RIGHT] > SAFE_DISTANCE) ||
-		((sensor_value[FRONT_RIGHT]+sensor_value[RIGHT]) > SAFE_DISTANCE) ||
-		((sensor_value[RIGHT]+sensor_value[BACK_RIGHT]) > SAFE_DISTANCE)) /*&&
-		((mode_deplacement == MODE_FRONT_RIGHT)||(mode_deplacement == MODE_BACK_RIGHT))*/){
-		//chprintf((BaseSequentialStream *)&SD3, " obstacle "); //debug
+
+	if(((sensor_value[FRONT_RIGHT] > SAFE_DISTANCE)||	//tests if obstacle towards front right and if gravity is in the same direction
+		(sensor_value[RIGHT] > SAFE_DISTANCE)||
+		((sensor_value[FRONT_RIGHT]+sensor_value[RIGHT]) > SAFE_DISTANCE)||
+		((sensor_value[FRONT_RIGHT]+sensor_value[FRONT_LEFT])>SAFE_DISTANCE))&&
+		(mode_deplacement == MODE_FRONT_RIGHT)){
+
 		return true;
 
-	}else if(((sensor_value[FRONT_LEFT] > SAFE_DISTANCE) ||	//if obstacle on the left and gravity towards the left
-			(sensor_value[BACK_LEFT] > SAFE_DISTANCE) ||	//then there is an obstacle to avoid
-			(sensor_value[LEFT] > SAFE_DISTANCE) ||
-			((sensor_value[BACK_LEFT]+sensor_value[LEFT]) > SAFE_DISTANCE) ||
-			((sensor_value[LEFT]+sensor_value[FRONT_LEFT]) > SAFE_DISTANCE)) /*&&
-			((mode_deplacement==MODE_FRONT_LEFT)||(mode_deplacement==MODE_BACK_LEFT))*/){
-		//chprintf((BaseSequentialStream *)&SD3, " obstacle "); //debug
-		return true;
+	}else if(((sensor_value[BACK_RIGHT] > SAFE_DISTANCE)||   //tests if obstacle towards back right and if gravity is in the same direction
+			(sensor_value[RIGHT] > SAFE_DISTANCE)||
+			((sensor_value[BACK_RIGHT]+sensor_value[RIGHT]) > SAFE_DISTANCE)||
+			((sensor_value[BACK_RIGHT]+sensor_value[BACK_LEFT])>SAFE_DISTANCE))&&
+			(mode_deplacement == MODE_BACK_RIGHT)){
 
-	}else if(((sensor_value[FRONT_RIGHT]+sensor_value[FRONT_LEFT]) > SAFE_DISTANCE) ||   //if obstacle in front or behind
-			((sensor_value[BACK_RIGHT]+sensor_value[BACK_LEFT]) > SAFE_DISTANCE)){		//then there is an obstacle to avoid
-		return true;
+			return true;
+
+	}else if(((sensor_value[FRONT_LEFT] > SAFE_DISTANCE)||  //tests if obstacle towards front left and if gravity is in the same direction
+			(sensor_value[LEFT] > SAFE_DISTANCE)||
+			((sensor_value[FRONT_LEFT]+sensor_value[LEFT]) > SAFE_DISTANCE)||
+			((sensor_value[FRONT_RIGHT]+sensor_value[FRONT_LEFT])>SAFE_DISTANCE))&&
+			(mode_deplacement == MODE_FRONT_LEFT)){
+
+			return true;
+
+	}else if(((sensor_value[BACK_LEFT] > SAFE_DISTANCE)||	//tests if obstacle towards back left and if gravity is in the same direction
+			(sensor_value[LEFT] > SAFE_DISTANCE)||
+			((sensor_value[BACK_LEFT]+sensor_value[LEFT]) > SAFE_DISTANCE)||
+			((sensor_value[BACK_RIGHT]+sensor_value[BACK_LEFT])>SAFE_DISTANCE))&&
+			(mode_deplacement == MODE_BACK_LEFT)){
+
+			return true;
+
 	}
+
+		//chprintf((BaseSequentialStream *)&SD3, " obstacle "); //debug
+
 
 	return false; //otherwise there is no obstacle to avoid
 }
 
 uint8_t index_highest_sensor_value(void){
-	uint16_t max=NULL;
-	uint8_t max_sensor_index=NULL;
+	uint16_t max=ZERO;
+	uint8_t max_sensor_index=ZERO;
 	for(uint8_t i=0; i<NB_PROX_SENSOR;i++){
 		if(sensor_value[i]>max){
 			max=sensor_value[i];
