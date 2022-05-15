@@ -1,3 +1,9 @@
+/*
+ * orientation.h
+ *
+ *  Created on: Apr 25, 2022
+ *      Author: Sandra L'Herminé
+ */
 #ifndef ORIENTATION_H
 #define ORIENTATION_H
 #include <stdint.h>
@@ -31,4 +37,4 @@ int16_t get_norme(void);
 int8_t get_mode_deplacement(void);
 float get_cos_gravity(void);
 
-#endif
+#endif/* ORIENTATION_H_ */

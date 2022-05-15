@@ -18,8 +18,6 @@
 
 #define ZERO 0 //value to initialize parameters
 
-#define DISTANCE_THREAD_TIME 2 //[ms]
-
 #define SAFE_DISTANCE 80 //security distance for wall detection
 #define DISTANCE_FOLLOW_WALL 120 //distance that the robot is going to keep with the wall while following it
 #define THRESHOLD_GRAVITY 0.25f
@@ -94,10 +92,10 @@ void distance_start(void){
 	chThdCreateStatic(distance_thd_wa, sizeof(distance_thd_wa), NORMALPRIO+2, distance_thd, NULL);
 }
 
-bool is_there_obstacle(void){ //detects if there is an obstacle to avoid
+bool is_there_obstacle(void){ //detects if there is an wall to avoid
 	float cos_gravity=get_cos_gravity();
 
-	if(((sensor_value[FRONT_RIGHT] > SAFE_DISTANCE)||	//tests if obstacle towards front right and if gravity is in the same direction
+	if(((sensor_value[FRONT_RIGHT] > SAFE_DISTANCE)||	//tests if wall towards front right and if gravity is in the same direction
 		(sensor_value[RIGHT] > SAFE_DISTANCE)||
 		((sensor_value[FRONT_RIGHT]+sensor_value[RIGHT]) > SAFE_DISTANCE)||
 		((sensor_value[FRONT_RIGHT]+sensor_value[FRONT_LEFT])>SAFE_DISTANCE))&&
@@ -105,7 +103,7 @@ bool is_there_obstacle(void){ //detects if there is an obstacle to avoid
 
 		return true;
 
-	}else if(((sensor_value[BACK_RIGHT] > SAFE_DISTANCE)||   //tests if obstacle towards back right and if gravity is in the same direction
+	}else if(((sensor_value[BACK_RIGHT] > SAFE_DISTANCE)||   //tests if wall towards back right and if gravity is in the same direction
 			(sensor_value[RIGHT] > SAFE_DISTANCE)||
 			((sensor_value[BACK_RIGHT]+sensor_value[RIGHT]) > SAFE_DISTANCE)||
 			((sensor_value[BACK_RIGHT]+sensor_value[BACK_LEFT])>SAFE_DISTANCE))&&
@@ -113,7 +111,7 @@ bool is_there_obstacle(void){ //detects if there is an obstacle to avoid
 
 			return true;
 
-	}else if(((sensor_value[FRONT_LEFT] > SAFE_DISTANCE)||  //tests if obstacle towards front left and if gravity is in the same direction
+	}else if(((sensor_value[FRONT_LEFT] > SAFE_DISTANCE)||  //tests if wall towards front left and if gravity is in the same direction
 			(sensor_value[LEFT] > SAFE_DISTANCE)||
 			((sensor_value[FRONT_LEFT]+sensor_value[LEFT]) > SAFE_DISTANCE)||
 			((sensor_value[FRONT_RIGHT]+sensor_value[FRONT_LEFT])>SAFE_DISTANCE))&&
@@ -121,7 +119,7 @@ bool is_there_obstacle(void){ //detects if there is an obstacle to avoid
 
 			return true;
 
-	}else if(((sensor_value[BACK_LEFT] > SAFE_DISTANCE)||	//tests if obstacle towards back left and if gravity is in the same direction
+	}else if(((sensor_value[BACK_LEFT] > SAFE_DISTANCE)||	//tests if wall towards back left and if gravity is in the same direction
 			(sensor_value[LEFT] > SAFE_DISTANCE)||
 			((sensor_value[BACK_LEFT]+sensor_value[LEFT]) > SAFE_DISTANCE)||
 			((sensor_value[BACK_RIGHT]+sensor_value[BACK_LEFT])>SAFE_DISTANCE))&&
@@ -146,10 +144,10 @@ bool is_there_obstacle(void){ //detects if there is an obstacle to avoid
 	}
 
 
-	return false; //otherwise there is no obstacle to avoid
+	return false; //otherwise there is no wall to avoid
 }
 
-uint8_t index_highest_sensor_value(void){ //finds where the obstacle is by finding the sensor with the maximum value
+uint8_t index_highest_sensor_value(void){ //finds where the wall is by finding the sensor with the maximum value
 	uint16_t max=ZERO;
 	uint8_t max_sensor_index=ZERO;
 	for(uint8_t i=0; i<NB_PROX_SENSOR;i++){
@@ -161,7 +159,7 @@ uint8_t index_highest_sensor_value(void){ //finds where the obstacle is by findi
 	return max_sensor_index;
 }
 
-int16_t get_error_distance_to_wall_right(void){
+int16_t get_error_distance_to_wall_right(void){ //error
 	return (DISTANCE_FOLLOW_WALL - sensor_value[RIGHT]);
 }
 
