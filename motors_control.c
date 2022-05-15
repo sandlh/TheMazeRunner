@@ -186,13 +186,13 @@ static void follow_wall(int16_t speed_prop){
 		case BACK_RIGHT :					//so the errors for PID are the errors of the sensors on the right
 		case RIGHT :
 			error_distance_to_wall = get_error_distance_to_wall_right();
-			error_orientation_with_wall=get_error_orientation_right();
+			error_orientation_with_wall=get_error_orientation_wall_right();
 			break;
 		case FRONT_LEFT :					//if the max sensor is on the left -> the wall is on the left
 		case BACK_LEFT :					//so the errors PID are the errors of the sensors on the left
 		case LEFT :
 			error_distance_to_wall = get_error_distance_to_wall_left();
-			error_orientation_with_wall=get_error_orientation_left();
+			error_orientation_with_wall=get_error_orientation_wall_left();
 			break;
 		default :
 			break;

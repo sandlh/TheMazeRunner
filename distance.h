@@ -36,8 +36,8 @@ void distance_start(void);
 
 int16_t get_error_distance_to_wall_right(void);
 int16_t get_error_distance_to_wall_left(void);
-int16_t get_error_orientation_right(void);
-int16_t get_error_orientation_left(void);
+int16_t get_error_orientation_wall_right(void);
+int16_t get_error_orientation_wall_left(void);
 
 bool is_there_obstacle(void);
 uint8_t index_highest_sensor_value(void);

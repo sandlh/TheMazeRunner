@@ -109,16 +109,16 @@ bool is_there_obstacle(void){ //detects if there is an wall to avoid
 
 			return true;
 
-	}else if((((sensor_value[FRONT_RIGHT])>SAFE_DISTANCE)|| //if gravity is a bit towards the left, the robot continues a bit to follow the wall
-			(sensor_value[RIGHT]>SAFE_DISTANCE)||
-			(sensor_value[BACK_RIGHT]>SAFE_DISTANCE)||
+	}else if((((sensor_value[FRONT_RIGHT])>SAFE_DISTANCE)|| //if gravity is a bit towards the left, the robot continues a bit to follow the wall on the right
+			(sensor_value[RIGHT]>SAFE_DISTANCE)||			//so that when the change from wall following to slope following occurs, the robot doesn't
+			(sensor_value[BACK_RIGHT]>SAFE_DISTANCE)||		//make a curve towards the wall
 			((sensor_value[BACK_RIGHT]+sensor_value[RIGHT]) > SAFE_DISTANCE)||
 			((sensor_value[FRONT_RIGHT]+sensor_value[RIGHT]) > SAFE_DISTANCE))&&
 			(cos_gravity<THRESHOLD_GRAVITY)){
 		return true;
-	}else if((((sensor_value[FRONT_LEFT])>SAFE_DISTANCE)||
-			(sensor_value[LEFT]>SAFE_DISTANCE)||
-			(sensor_value[BACK_LEFT]>SAFE_DISTANCE)||
+	}else if((((sensor_value[FRONT_LEFT])>SAFE_DISTANCE)|| 	//if gravity is a bit towards the right, the robot continues a bit to follow the wall on the left
+			(sensor_value[LEFT]>SAFE_DISTANCE)||			//so that when the change from wall following to slope following occurs, the robot doesn't
+			(sensor_value[BACK_LEFT]>SAFE_DISTANCE)||		//make a curve towards the wall
 			((sensor_value[BACK_LEFT]+sensor_value[LEFT]) > SAFE_DISTANCE)||
 			((sensor_value[FRONT_LEFT]+sensor_value[LEFT]) > SAFE_DISTANCE))&&
 			(cos_gravity>(-THRESHOLD_GRAVITY))){
@@ -141,7 +141,7 @@ uint8_t index_highest_sensor_value(void){ //finds where the wall is by finding t
 	return max_sensor_index;
 }
 
-int16_t get_error_distance_to_wall_right(void){ //error
+int16_t get_error_distance_to_wall_right(void){
 	return (DISTANCE_FOLLOW_WALL - sensor_value[RIGHT]);
 }
 
@@ -149,11 +149,11 @@ int16_t get_error_distance_to_wall_left(void){
 	return (DISTANCE_FOLLOW_WALL - sensor_value[LEFT]);
 }
 
-int16_t get_error_orientation_right(void){
+int16_t get_error_orientation_wall_right(void){
 	return (sensor_value[FRONT_RIGHT]-sensor_value[BACK_RIGHT]);
 }
 
-int16_t get_error_orientation_left(void){
+int16_t get_error_orientation_wall_left(void){
 	return (sensor_value[FRONT_LEFT]-sensor_value[BACK_LEFT]);
 }
 
