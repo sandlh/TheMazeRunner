@@ -231,6 +231,7 @@ static void follow_wall(int16_t speed_prop){
 void motors_control_start(void)
 {
 	motors_init();
+	distance_start();
 	orientation_start();
 	//starts motors control thread
 	chThdCreateStatic(motor_control_thd_wa, sizeof(motor_control_thd_wa), NORMALPRIO+1, motor_control_thd, NULL);
