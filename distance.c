@@ -18,7 +18,7 @@
 
 #define ZERO 0 //value to initialize parameters
 
-#define THREAD_PERIOD 2 //[ms]
+#define DISTANCE_THREAD_TIME 2 //[ms]
 
 #define SAFE_DISTANCE 80 //security distance for wall detection
 #define DISTANCE_FOLLOW_WALL 120 //distance that the robot is going to keep with the wall while following it
@@ -67,7 +67,7 @@ static THD_FUNCTION(distance_thd, arg) {
 
 		update_data();
 
-		chThdSleepUntilWindowed(time, time + MS2ST(THREAD_PERIOD));
+		chThdSleepUntilWindowed(time, time + MS2ST(DISTANCE_THREAD_TIME));
 
 	}
 }

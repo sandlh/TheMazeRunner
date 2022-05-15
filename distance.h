@@ -10,7 +10,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-
+#define DISTANCE_THREAD_TIME 2 //[ms]
 #define FRONT_RIGHT 0 //#define to use the values from the sensor in the array sensor_value
 #define FRONT_LEFT 1
 #define BACK_RIGHT 2

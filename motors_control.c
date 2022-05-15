@@ -171,7 +171,7 @@ static int16_t regulator_orientation(int16_t error)
 	static int16_t old_error = ZERO;
 	int16_t orientation_pid =ZERO;
 
-	integrale_pid_orientation += KI_ORIENTATION *error*dt;
+	integrale_pid_orientation += KI_ORIENTATION *error*DISTANCE_THREAD_TIME;
 
 	if(integrale_pid_orientation > ARW_MAX){
 			integrale_pid_orientation = ARW_MAX;
@@ -179,7 +179,7 @@ static int16_t regulator_orientation(int16_t error)
 			integrale_pid_orientation = ARW_MIN;
 	}
 
-	orientation_pid = KP_ORIENTATION*error + integrale_pid_orientation + (KD_ORIENTATION*(error-old_error))/dt;
+	orientation_pid = KP_ORIENTATION*error + integrale_pid_orientation + (KD_ORIENTATION*(error-old_error))/DISTANCE_THREAD_TIME;
 	old_error = error;
 	return orientation_pid;
 }
