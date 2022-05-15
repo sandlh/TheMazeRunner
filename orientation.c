@@ -19,9 +19,9 @@
 #define TAU 1/(2*PI*CUTOFFREQUENCY)
 #define ALPHA ORIENTATION_THREAD_PERIOD/(TAU +ORIENTATION_THREAD_PERIOD)
 
-static int16_t error = 0;
-static int16_t norme = 0;
-static int8_t mode_deplacement = 0;
+static int16_t error = ZERO;
+static int16_t norme = ZERO;
+static int8_t mode_deplacement = ZERO;
 
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
@@ -75,11 +75,11 @@ static void update_data(void) //
 	// instead of taking the angle as an error we took the acceleration_x
 	error = acceleration_x;
 
-	if ((acceleration_x*acceleration_y >= 0) && (acceleration_y >=0)){
+	if ((acceleration_x*acceleration_y >= ZERO) && (acceleration_y >=ZERO)){
 		mode_deplacement = MODE_BACK_LEFT ;   // ext_wheel = right wheel , int_wheel = left wheel
-	}else if ((acceleration_x*acceleration_y >= 0) && (acceleration_y < 0)){
+	}else if ((acceleration_x*acceleration_y >= ZERO) && (acceleration_y < ZERO)){
 		mode_deplacement = MODE_FRONT_RIGHT;
-	}else if ((acceleration_x*acceleration_y < 0) && (acceleration_y >= 0)){
+	}else if ((acceleration_x*acceleration_y < ZERO) && (acceleration_y >= ZERO)){
 		mode_deplacement = MODE_BACK_RIGHT;
 	}else {
 		mode_deplacement = MODE_FRONT_LEFT;
@@ -91,9 +91,9 @@ static int16_t passe_bas_filter(int16_t acc){
 
     // low pass filter
 
-	static int16_t acc_filtered_old_value = 0;     //we always call this function for acceleration_x and acceleration_y one after the other
+	static int16_t acc_filtered_old_value = ZERO;     //we always call this function for acceleration_x and acceleration_y one after the other
 	                                              //so we take the older value for the last value of the acceleration currently being filtered
-	static int16_t acc_filtered_older_value = 0;
+	static int16_t acc_filtered_older_value = ZERO;
 
 	//equation of the low pass filter, read the report for more information
 	int16_t acc_low_pass_filtered = ALPHA * acc +(1-ALPHA)*acc_filtered_older_value;

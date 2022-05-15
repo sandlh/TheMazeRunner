@@ -6,11 +6,14 @@
  */
 #ifndef ORIENTATION_H
 #define ORIENTATION_H
+#include <stdint.h>
 
 #define MODE_FRONT_LEFT 0
 #define MODE_FRONT_RIGHT 1
 #define MODE_BACK_RIGHT 2
 #define MODE_BACK_LEFT 3
+
+#define ZERO 0
 
 /*
  *                                       Mode d'acceleration

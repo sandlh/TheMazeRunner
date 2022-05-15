@@ -37,7 +37,7 @@
 #define KI_ORIENTATION 1
 #define KD_ORIENTATION 20
 
-#define ZERO 0
+
 
 static void set_motors_speed(int16_t speed_ext, float speed_int);
 static float regulator_speed(void);

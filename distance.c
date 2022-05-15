@@ -10,8 +10,6 @@
 
 #include "ch.h"
 #include "hal.h"
-#include <chprintf.h>
-#include <usbcfg.h>
 #include <msgbus/messagebus.h>
 
 #include <math.h>
