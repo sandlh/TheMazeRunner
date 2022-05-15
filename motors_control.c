@@ -68,7 +68,6 @@ static THD_FUNCTION(motor_control_thd, arg)
 		    	follow_wall(speed_prop);
 	    	}else{
 			    follow_slope(speed_prop);
-
 	    	}
 
 			chThdSleepUntilWindowed(time, time + MS2ST(MOTOR_THREAD_TIME));
@@ -88,11 +87,12 @@ static int16_t proportional_speed(int16_t norme)  //calculate proportional speed
 	}
 	return speed;
 }
+/*************************FUNCTIONS FOR SLOPE FOLLOWING**********************************/
 
 static void follow_slope(int16_t speed_prop)
 
 {
-	integrale_pid_wall_following = ZERO;
+	integrale_pid_wall_following = ZERO; // resets integral of wall following PID so that when there is a wall again, the integral is zero
 
 	// calculate PID
 	float pid = regulator_speed();
@@ -119,7 +119,7 @@ static float regulator_speed(void)
 		static float integrale = ZERO;
 
 		int16_t error = abs(get_error());
-		new_integrale = KI_SPEED * error*ORIENTATION_THREAD_PERIOD;
+		new_integrale = KI_SPEED * error * ORIENTATION_THREAD_PERIOD;
 		integrale += new_integrale;
 
 		if(integrale > ARW_MAX_SPEED)
@@ -154,6 +154,8 @@ static void set_motors_speed(int16_t speed_ext, float speed_int)
 				 break;
 		 }
 }
+/***********************END FUNCITONS FOR SLOPE FOLLOWING********************************/
+
 /*************************FUNCTIONS FOR WALL FOLLOWING**********************************/
 static int16_t regulator_wall_following(int16_t error)
 {
