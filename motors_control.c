@@ -234,10 +234,10 @@ static void avoid_obstacle(int16_t speed_prop){
 		speed_int=SPEED_ZERO;
 	}
 
-	if((index_sensor_max==FRONT_RIGHT)||(index_sensor_max==RIGHT)||(index_sensor_max==BACK_RIGHT)){
-		 right_motor_set_speed(speed_ext);
+	if((index_sensor_max==FRONT_RIGHT)||(index_sensor_max==RIGHT)||(index_sensor_max==BACK_RIGHT)){	//if wall on the right, right wheel=exterior wheel
+		 right_motor_set_speed(speed_ext);															//and left wheel=interior wheel
 		 left_motor_set_speed(speed_int);
-	}else{
+	}else{									//otherwise, wall on the left -> right wheel=
 		 right_motor_set_speed(speed_int);
 		 left_motor_set_speed(speed_ext);
 	}
