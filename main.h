@@ -1,3 +1,9 @@
+/*
+ * main.h
+ *
+ *  Created on: Apr 25, 2022
+ *      Author: Sandra L'Herminé et Barbara De Groot
+ */
 #ifndef MAIN_H
 #define MAIN_H
 
@@ -21,4 +27,4 @@ extern parameter_namespace_t parameter_root;
 }
 #endif
 
-#endif
+#endif/* MAIN_H_ */

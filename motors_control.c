@@ -48,7 +48,7 @@
 #define ZERO 0
 
 static void set_motors_speed(int16_t speed_ext, float speed_int);
-static float regulator_speed();
+static float regulator_speed(void);
 
 static int16_t speed_proportionelle(int16_t norme);
 static void calculate_speeds(int16_t speed_prop);
@@ -118,7 +118,7 @@ static void calculate_speeds(int16_t speed_prop)
 
 }
 
-static float regulator_speed()
+static float regulator_speed(void)
 {
 	//PID
 		static int16_t ancienne_erreur = 0;
