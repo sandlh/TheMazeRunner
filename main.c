@@ -1,3 +1,7 @@
+#include <stdio.h> //debug
+#include <stdlib.h> //debug
+#include <string.h> //debug
+
 #include <ch.h>
 #include <hal.h>
 #include <memory_protection.h>
@@ -39,7 +43,6 @@ int main(void)
 	systime_t time;
 	while (true) {
 	    	time = chVTGetSystemTime();
-
 	    	//waits 0.05 second
 	    	chThdSleepUntilWindowed(time, time + MS2ST(50));
 	    }
