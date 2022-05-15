@@ -30,7 +30,7 @@ CONDVAR_DECL(bus_condvar);
 void orientation_start(void);
 
 static void update_data(void);
-static int16_t passe_bas_filter(int16_t acc);
+static int16_t low_pass_filter(int16_t acc);
 
 int16_t get_error(void);
 int16_t get_norme(void);
@@ -66,8 +66,8 @@ static void update_data(void) //
 	int16_t acceleration_x = (int16_t)get_acc(X_AXIS);
 	int16_t acceleration_y = (int16_t)get_acc(Y_AXIS);
 
-	acceleration_x = passe_bas_filter(acceleration_x);
-	acceleration_y = passe_bas_filter(acceleration_y);
+	acceleration_x = low_pass_filter(acceleration_x);
+	acceleration_y = low_pass_filter(acceleration_y);
 
 	norme = sqrt(acceleration_x*acceleration_x + acceleration_y*acceleration_y);
 
@@ -87,7 +87,7 @@ static void update_data(void) //
 
 }
 
-static int16_t passe_bas_filter(int16_t acc){
+static int16_t low_pass_filter(int16_t acc){
 
     // low pass filter
 

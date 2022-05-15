@@ -38,7 +38,7 @@
 static void set_motors_speed(int16_t speed_ext, float speed_int);
 static float regulator_speed(void);
 
-static int16_t speed_proportionelle(int16_t norme);
+static int16_t proportional_speed(int16_t norme);
 static void follow_slope(int16_t speed_prop);
 
 static int16_t speed_ext = ZERO;
@@ -62,12 +62,12 @@ static THD_FUNCTION(motor_control_thd, arg)
 	     {
 	    	time = chVTGetSystemTime();
 
-	    	speed_prop = speed_proportionelle(get_norme());
+	    	speed_prop = proportional_speed(get_norme());
 
 	    	if(is_there_obstacle()){
 		    	follow_wall(speed_prop);
 	    	}else{
-			follow_slope(speed_prop);
+			    follow_slope(speed_prop);
 
 	    	}
 
@@ -76,9 +76,9 @@ static THD_FUNCTION(motor_control_thd, arg)
      }
 }
 
-static int16_t speed_proportionelle(int16_t norme)
+static int16_t proportional_speed(int16_t norme)  //calculate proportional speed
 {
-	int16_t speed = 0;
+	int16_t speed = ZERO;
 	if (norme < NORME_MIN ){
 		speed = SPEED_MIN;
 	} else if (speed > NORME_MAX){
@@ -92,7 +92,9 @@ static int16_t speed_proportionelle(int16_t norme)
 static void follow_slope(int16_t speed_prop)
 
 {
-	integrale_pid_wall_following = ZERO; //resets integral of wall following PID so that when there's a wall again, the integral is zero
+	integrale_pid_wall_following = ZERO;
+
+	// calculate PID
 	float pid = regulator_speed();
 
 	if (pid > ACC_MAX){
@@ -100,6 +102,7 @@ static void follow_slope(int16_t speed_prop)
 	}
 	float speed_correct =  pid/ACC_MAX;
 
+	// set speeds
 	speed_ext = speed_prop * (1+speed_correct);
 	speed_int = speed_prop * (1-speed_correct);
 
@@ -109,11 +112,11 @@ static void follow_slope(int16_t speed_prop)
 static float regulator_speed(void)
 {
 	//PID
-		static int16_t ancienne_erreur = 0;
-		float speed_pid =0;
+		static int16_t previous_error = ZERO;
+		float speed_pid = ZERO;
 
-		float new_integrale = 0;
-		static float integrale = 0;
+		float new_integrale = ZERO;
+		static float integrale = ZERO;
 
 		int16_t error = abs(get_error());
 		new_integrale = KI_SPEED * error*ORIENTATION_THREAD_PERIOD;
@@ -124,8 +127,8 @@ static float regulator_speed(void)
 		else if (integrale < ARW_MIN_SPEED )
 				integrale = ARW_MIN_SPEED;
 
-		speed_pid = KP_SPEED*error + integrale + KD_SPEED*(error-ancienne_erreur)/ORIENTATION_THREAD_PERIOD;
-		ancienne_erreur = error;
+		speed_pid = KP_SPEED*error + integrale + KD_SPEED*(error-previous_error)/ORIENTATION_THREAD_PERIOD;
+		previous_error = error;
 
 		return speed_pid;
 	}
