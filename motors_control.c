@@ -16,15 +16,17 @@
 
 #include <math.h>
 
-
+//define for the regulator_speed
 #define KD_SPEED 0.15
 #define KI_SPEED 3
 #define KP_SPEED 1.5
-#define THREAD_TIME 2 //[ms]
-#define AWM_MAX  100
-#define AWM_MIN  -AWM_MAX
 
-#define NORME_MAX 5000
+#define THREAD_TIME 2 //[ms]
+
+#define AWU_MAX  100   //anti wind up for the regulator speed
+#define AWU_MIN  -AWU_MAX
+
+#define NORME_MAX 5500
 #define NORME_MIN 500
 
 #define ACC_MAX 10000
@@ -100,7 +102,7 @@ static int16_t speed_proportionelle(int16_t norme)
 	return speed;
 }
 
-static void calculate_speeds(int16_t speed_prop)  // enlever les valeurs num�riques
+static void calculate_speeds(int16_t speed_prop)
 
 {
 
@@ -109,14 +111,14 @@ static void calculate_speeds(int16_t speed_prop)  // enlever les valeurs num�r
 	if (pid > ACC_MAX){
 		pid = ACC_MAX;
 	}
-	float speed_correct =  pid/ACC_MAX; // verif valeur de ACC_MAX
+	float speed_correct =  pid/ACC_MAX;
 
 	speed_ext = speed_prop * (1+speed_correct);
 	speed_int = speed_prop * (1-speed_correct);
 
 }
 
-static float regulator_speed()  //voir si je peux le mettre en int
+static float regulator_speed()
 {
 	//PID
 		static int16_t ancienne_erreur = 0;
@@ -129,10 +131,10 @@ static float regulator_speed()  //voir si je peux le mettre en int
 		new_integrale = KI_SPEED * error*ORIENTATION_THREAD_PERIOD;
 		integrale += new_integrale;
 
-		if(integrale > AWM_MAX)
-				integrale = AWM_MAX;
-		else if (integrale < AWM_MIN )
-				integrale = AWM_MIN;
+		if(integrale > AWU_MAX)
+				integrale = AWU_MAX;
+		else if (integrale < AWU_MIN )
+				integrale = AWU_MIN;
 
 		speed_pid = KP_SPEED*error + integrale + KD_SPEED*(error-ancienne_erreur)/ORIENTATION_THREAD_PERIOD;
 		ancienne_erreur = error;
