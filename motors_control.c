@@ -119,7 +119,6 @@ static void calculate_speeds(int16_t speed_prop)  // enlever les valeurs num�r
 static float regulator_speed()  //voir si je peux le mettre en int
 {
 	//PID
-		uint8_t dt = 4;
 		static int16_t ancienne_erreur = 0;
 		float speed_pid =0;
 
@@ -127,7 +126,7 @@ static float regulator_speed()  //voir si je peux le mettre en int
 		static float integrale = 0;
 
 		int16_t error = abs(get_error());
-		new_integrale = KI_SPEED * error*dt;
+		new_integrale = KI_SPEED * error*ORIENTATION_THREAD_PERIOD;
 		integrale += new_integrale;
 
 		if(integrale > AWM_MAX)
@@ -135,7 +134,7 @@ static float regulator_speed()  //voir si je peux le mettre en int
 		else if (integrale < AWM_MIN )
 				integrale = AWM_MIN;
 
-		speed_pid = KP_SPEED*error + integrale + KD_SPEED*(error-ancienne_erreur)/dt;
+		speed_pid = KP_SPEED*error + integrale + KD_SPEED*(error-ancienne_erreur)/ORIENTATION_THREAD_PERIOD;
 		ancienne_erreur = error;
 
 		return speed_pid;

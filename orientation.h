@@ -8,6 +8,8 @@
 #define MODE_BACK_RIGHT 2
 #define MODE_BACK_LEFT 3
 
+#define ORIENTATION_THREAD_PERIOD	4//[ms]
+
 void orientation_start(void);
 
 int16_t get_error(void);

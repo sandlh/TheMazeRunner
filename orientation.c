@@ -9,12 +9,12 @@
 
 #include <math.h>
 
-#define THREAD_PERIOD	4//[ms]
+
 
 #define PI 3.14
 #define CUTOFFREQUENCY 0.0015
 #define TAU 1/(2*PI*CUTOFFREQUENCY)
-#define ALPHA THREAD_PERIOD/(TAU +THREAD_PERIOD)
+#define ALPHA ORIENTATION_THREAD_PERIOD/(TAU +ORIENTATION_THREAD_PERIOD)
 
 
 static int16_t error = 0;
@@ -51,7 +51,7 @@ static THD_FUNCTION(imu_reader_thd, arg) {
 		time = chVTGetSystemTime();
 		messagebus_topic_wait(imu_topic, &imu_values, sizeof(imu_values));// � comprendre
 		update_data();
-		chThdSleepUntilWindowed(time, time + MS2ST(THREAD_PERIOD));
+		chThdSleepUntilWindowed(time, time + MS2ST(ORIENTATION_THREAD_PERIOD));
 
 	}
 }
