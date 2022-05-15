@@ -34,6 +34,7 @@ int main(void)
     usb_start();
 
 	motors_control_start();
+	distance_start();
 
 	systime_t time;
 	while (true) {
