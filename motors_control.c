@@ -177,8 +177,8 @@ static int16_t regulator_wall_following(int16_t error)
 
 static void follow_wall(int16_t speed_prop){
 	uint8_t index_sensor_max = index_highest_sensor_value();
-	static int16_t error_orientation = ZERO;
-	static int16_t error_distance_to_wall = ZERO;
+	static int16_t error_orientation_with_wall = ZERO;	//error to keep the robot parallele to wall
+	static int16_t error_distance_to_wall = ZERO;		//error to keep the robot at a certain distance from the wall
 
 	int8_t mode_deplacement = get_mode_deplacement(); //gets where the gravity is pointing to
 
@@ -187,19 +187,19 @@ static void follow_wall(int16_t speed_prop){
 		case BACK_RIGHT :					//so the errors for PID are the errors of the sensors on the right
 		case RIGHT :
 			error_distance_to_wall = get_error_distance_to_wall_right();
-			error_orientation=get_error_orientation_right();
+			error_orientation_with_wall=get_error_orientation_right();
 			break;
 		case FRONT_LEFT :					//if the max sensor is on the left -> the wall is on the left
 		case BACK_LEFT :					//so the errors PID are the errors of the sensors on the left
 		case LEFT :
 			error_distance_to_wall = get_error_distance_to_wall_left();
-			error_orientation=get_error_orientation_left();
+			error_orientation_with_wall=get_error_orientation_left();
 			break;
 		default :
 			break;
 	}
 
-	int16_t pid_wall_following=regulator_wall_following(error_orientation);
+	int16_t pid_wall_following=regulator_wall_following(error_orientation_with_wall);
 
 	if((mode_deplacement==FRONT_RIGHT) || (mode_deplacement==FRONT_LEFT)){ 	//calculates speeds if the gravity is in front
 		speed_ext=SPEED_BIAS+pid_wall_following-error_distance_to_wall;		//so robot follows wall forward

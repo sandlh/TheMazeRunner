@@ -2,7 +2,7 @@
  * distance.c
  *
  *  Created on: Apr 25, 2022
- *      Author: BDEGROOT
+ *      Author: Barbara De Groot
  */
 #include "sensors/proximity.h"
 #include "distance.h"
