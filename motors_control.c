@@ -20,7 +20,7 @@
 #define KD_SPEED 0.15
 #define KI_SPEED 3
 #define KP_SPEED 1.5
-#define THREAD_TIME 4 //[ms]
+#define THREAD_TIME 2 //[ms]
 #define AWM_MAX  100
 #define AWM_MIN  -AWM_MAX
 

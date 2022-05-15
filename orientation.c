@@ -116,7 +116,7 @@ void orientation_start(void)
 	messagebus_init(&bus, &bus_lock, &bus_condvar);
 	imu_start();
 	calibrate_acc();
-	chThdCreateStatic(imu_reader_thd_wa, sizeof(imu_reader_thd_wa), NORMALPRIO+1, imu_reader_thd, NULL);
+	chThdCreateStatic(imu_reader_thd_wa, sizeof(imu_reader_thd_wa), NORMALPRIO, imu_reader_thd, NULL);
 }
 
 //-------- fonctions get---------

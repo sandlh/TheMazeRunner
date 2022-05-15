@@ -18,7 +18,7 @@
 
 #define ZERO 0 //value to initialize parameters
 
-#define THREAD_PERIOD 4 //[ms]
+#define THREAD_PERIOD 2 //[ms]
 
 #define MODE_FRONT_LEFT 0 //mode deplacement
 #define MODE_FRONT_RIGHT 1
@@ -102,7 +102,7 @@ void distance_start(void){
 	proximity_start(); //starts IR sensors
 	calibrate_ir(); //calibrates IR sensors
 
-	chThdCreateStatic(distance_thd_wa, sizeof(distance_thd_wa), NORMALPRIO+1, distance_thd, NULL);
+	chThdCreateStatic(distance_thd_wa, sizeof(distance_thd_wa), NORMALPRIO+2, distance_thd, NULL);
 }
 
 bool is_there_obstacle(void){ //detects if there is an obstacle to avoid
