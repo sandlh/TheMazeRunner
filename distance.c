@@ -31,12 +31,6 @@
 #define SENSOR_RIGHT 2
 #define SENSOR_LEFT 5
 
-#define FRONT_RIGHT 0 //#define to use the values from the sensor in the array sensor_value
-#define FRONT_LEFT 1
-#define BACK_RIGHT 2
-#define BACK_LEFT 3
-#define RIGHT 4
-#define LEFT 5
 
 #define NB_PROX_SENSOR 6// number of proximity sensors used
 

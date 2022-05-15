@@ -33,13 +33,6 @@
 #define SPEED_MAX 1000
 #define SPEED_MIN 0
 
-#define FRONT_RIGHT 0 //#define to use the values from the sensor in the array sensor_value
-#define FRONT_LEFT 1
-#define BACK_RIGHT 2
-#define BACK_LEFT 3
-#define RIGHT 4
-#define LEFT 5
-
 #define ARW_MAX 50 //anti rewind max and min values for orientation PID
 #define ARW_MIN -50
 

@@ -1,5 +1,5 @@
-#ifndef PI_REGULATOR_H
-#define PI_REGULATOR_H
+#ifndef ORIENTATION_H
+#define ORIENTATION_H
 #include <stdbool.h>
 #include <stdint.h>
 
