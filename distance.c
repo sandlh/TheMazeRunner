@@ -14,8 +14,6 @@
 
 #include <math.h>
 
-#define ZERO 0 //value to initialize parameters
-
 #define SAFE_DISTANCE 80 //security distance for wall detection
 #define DISTANCE_FOLLOW_WALL 120 //distance that the robot is going to keep with the wall while following it
 #define THRESHOLD_GRAVITY 0.25f
@@ -29,20 +27,6 @@
 
 
 #define NB_PROX_SENSOR 6// number of proximity sensors used
-
-    /*
-    * Proximity sensors:
-    *
-    *                    ####
-    *       BACK RIGHT#        #BACK LEFT
-    *               #            #
-    *         RIGHT#   TOP VIEW   #LEFT
-    *               #            #
-    *      FRONT RIGHT#        #FRONT LEFT
-    *                    ####
-    *
-    */
-
 static uint16_t sensor_value[NB_PROX_SENSOR];
 
 static uint8_t mode_deplacement;

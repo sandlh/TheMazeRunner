@@ -20,6 +20,18 @@
 #define RIGHT 4
 #define LEFT 5
 
+    /*
+    * Proximity sensors:
+    *
+    *                    ####
+    *       BACK RIGHT#        #BACK LEFT
+    *               #            #
+    *         RIGHT#   TOP VIEW   #LEFT
+    *               #            #
+    *      FRONT RIGHT#        #FRONT LEFT
+    *                    ####
+    *
+    */
 void distance_start(void);
 
 int16_t get_error_distance_to_wall_right(void);

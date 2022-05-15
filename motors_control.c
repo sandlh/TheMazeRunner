@@ -13,11 +13,9 @@
 #define KI_SPEED 3
 #define KP_SPEED 1.5
 #define MOTOR_THREAD_TIME 2 //[ms]
-#define AWM_MAX  100
-#define AWM_MIN  -AWM_MAX
 
-#define AWU_MAX  100   //anti wind up for the regulator speed
-#define AWU_MIN  -AWU_MAX
+#define ARW_MAX_SPEED  100   //anti wind up for the regulator speed
+#define ARW_MIN_SPEED  -ARW_MAX_SPEED
 
 #define NORME_MAX 5500
 #define NORME_MIN 750
@@ -26,7 +24,7 @@
 
 #define SPEED_COEFF 5
 #define SPEED_MAX 1000
-#define SPEED_MIN 0
+#define SPEED_MIN ZERO
 
 #define ARW_MAX_WALL 50 //anti rewind max and min values for wall following PID
 #define ARW_MIN_WALL -50
@@ -37,17 +35,15 @@
 #define KI_ORIENTATION 1
 #define KD_ORIENTATION 20
 
-
-
 static void set_motors_speed(int16_t speed_ext, float speed_int);
 static float regulator_speed(void);
 
 static int16_t speed_proportionelle(int16_t norme);
-static void calculate_speeds(int16_t speed_prop);
+static void follow_slope(int16_t speed_prop);
 
-static int16_t speed_ext = 0;
-static int16_t speed_int = 0;
-static int8_t integrale_pid_wall_following = 0;
+static int16_t speed_ext = ZERO;
+static int16_t speed_int = ZERO;
+static int8_t integrale_pid_wall_following = ZERO;
 static int16_t regulator_wall_following(int16_t error);
 static void follow_wall(int16_t speed_prop);
 
@@ -71,9 +67,8 @@ static THD_FUNCTION(motor_control_thd, arg)
 	    	if(is_there_obstacle()){
 		    	follow_wall(speed_prop);
 	    	}else{
-	    	integrale_pid_wall_following = ZERO;
-			calculate_speeds(speed_prop);
-	    	set_motors_speed(speed_ext, speed_int);
+			follow_slope(speed_prop);
+
 	    	}
 
 			chThdSleepUntilWindowed(time, time + MS2ST(MOTOR_THREAD_TIME));
@@ -94,10 +89,10 @@ static int16_t speed_proportionelle(int16_t norme)
 	return speed;
 }
 
-static void calculate_speeds(int16_t speed_prop)
+static void follow_slope(int16_t speed_prop)
 
 {
-
+	integrale_pid_wall_following = ZERO;
 	float pid = regulator_speed();
 
 	if (pid > ACC_MAX){
@@ -108,6 +103,7 @@ static void calculate_speeds(int16_t speed_prop)
 	speed_ext = speed_prop * (1+speed_correct);
 	speed_int = speed_prop * (1-speed_correct);
 
+	set_motors_speed(speed_ext, speed_int);
 }
 
 static float regulator_speed(void)
@@ -123,10 +119,10 @@ static float regulator_speed(void)
 		new_integrale = KI_SPEED * error*ORIENTATION_THREAD_PERIOD;
 		integrale += new_integrale;
 
-		if(integrale > AWU_MAX)
-				integrale = AWU_MAX;
-		else if (integrale < AWU_MIN )
-				integrale = AWU_MIN;
+		if(integrale > ARW_MAX_SPEED)
+				integrale = ARW_MAX_SPEED;
+		else if (integrale < ARW_MIN_SPEED )
+				integrale = ARW_MIN_SPEED;
 
 		speed_pid = KP_SPEED*error + integrale + KD_SPEED*(error-ancienne_erreur)/ORIENTATION_THREAD_PERIOD;
 		ancienne_erreur = error;
