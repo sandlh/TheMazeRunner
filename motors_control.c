@@ -48,15 +48,20 @@
 #define ARW_MAX 50 //anti rewind max and min values for orientation PID
 #define ARW_MIN -50
 
+#define SPEED_BIAS 400
+
+#define KP_ORIENTATION 4
+#define KI_ORIENTATION 1
+#define KD_ORIENTATION 20
+
 #define ZERO 0
+#define SPEED_ZERO 0
 
 static void set_motors_speed(int16_t speed_ext, float speed_int);
 static float regulator_speed(int16_t error);
 
 static int16_t speed_proportionelle(int16_t norme);
 static void calculate_speeds(int16_t speed_prop);
-
-static void set_motors_speed_obstacle(int16_t speed_ext, int16_t speed_int);
 
 static int16_t speed_ext = 0;
 static int16_t speed_int = 0;
@@ -173,15 +178,12 @@ static void set_motors_speed(int16_t speed_ext, float speed_int)
 static int16_t regulator_orientation(int16_t error)
 {
 	//PID
-	uint8_t dt = THREAD_TIME;
-	static uint8_t Kp = 4;
-	static float Ki = 1;
-	static uint8_t Kd = 20;
+	uint8_t dt = THREAD_TIME; //est-ce qu'on a besoin de le déclaré comme une valeur ? on peut pas juste utilisé le define ?
 
 	static int16_t old_error = ZERO;
 	int16_t orientation_pid =ZERO;
 
-	integrale_pid_orientation += Ki *error*dt;
+	integrale_pid_orientation += KI_ORIENTATION *error*dt;
 
 	if(integrale_pid_orientation > ARW_MAX){
 			integrale_pid_orientation = ARW_MAX;
@@ -189,7 +191,7 @@ static int16_t regulator_orientation(int16_t error)
 			integrale_pid_orientation = ARW_MIN;
 	}
 
-	orientation_pid = Kp*error + integrale_pid_orientation + (Kd*(error-old_error))/dt;
+	orientation_pid = KP_ORIENTATION*error + integrale_pid_orientation + (KD_ORIENTATION*(error-old_error))/dt;
 	old_error = error;
 	return orientation_pid;
 }
@@ -200,7 +202,6 @@ static void avoid_obstacle(int16_t speed_prop){
 	static int16_t error_distance_to_wall = ZERO;
 
 	int8_t mode_deplacement = get_mode_deplacement();
-
 
 	switch(index_sensor_max){
 		case FRONT_RIGHT :
@@ -222,15 +223,15 @@ static void avoid_obstacle(int16_t speed_prop){
 	int16_t pid_orientation=regulator_orientation(error_orientation);
 
 	if((mode_deplacement==FRONT_RIGHT) || (mode_deplacement==FRONT_LEFT)){
-		speed_ext=400+pid_orientation-error_distance_to_wall;
-		speed_int=400-pid_orientation+error_distance_to_wall;
+		speed_ext=SPEED_BIAS+pid_orientation-error_distance_to_wall;
+		speed_int=SPEED_BIAS-pid_orientation+error_distance_to_wall;
 	}else{
-		speed_ext=-400+pid_orientation+error_distance_to_wall;
-		speed_int=-400-pid_orientation-error_distance_to_wall;
+		speed_ext=-SPEED_BIAS+pid_orientation+error_distance_to_wall;
+		speed_int=-SPEED_BIAS-pid_orientation-error_distance_to_wall;
 	}
-	if(speed_prop==0){
-		speed_ext=0;
-		speed_int=0;
+	if(speed_prop==SPEED_ZERO){
+		speed_ext=SPEED_ZERO;
+		speed_int=SPEED_ZERO;
 	}
 
 	if((index_sensor_max==FRONT_RIGHT)||(index_sensor_max==RIGHT)||(index_sensor_max==BACK_RIGHT)){
@@ -240,22 +241,6 @@ static void avoid_obstacle(int16_t speed_prop){
 		 right_motor_set_speed(speed_int);
 		 left_motor_set_speed(speed_ext);
 	}
-}
-
-static void set_motors_speed_obstacle(int16_t speed_ext, int16_t speed_int) // modifiï¿½
-{
-	switch (get_mode_deplacement()){
-			 case MODE_FRONT_LEFT:
-			 case MODE_BACK_LEFT:
-				 right_motor_set_speed(speed_int);
-				 left_motor_set_speed(speed_ext);
-				 break;
-			 case MODE_BACK_RIGHT:
-			 case MODE_FRONT_RIGHT:
-				 right_motor_set_speed(speed_ext);
-				 left_motor_set_speed(speed_int);
-				 break;
-		 }
 }
 /***********************END FUNCITONS FOR OBSTACLE CONTROL********************************/
 
@@ -270,6 +255,6 @@ void motors_control_start(void)
 
 	chThdCreateStatic(motor_control_thd_wa, sizeof(motor_control_thd_wa), NORMALPRIO+1, motor_control_thd, NULL);
 }
-
+/****************************END PUBLIC FUNCTIONS*************************************/
 
 

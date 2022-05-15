@@ -16,6 +16,18 @@
 
 #include <math.h>
 
+#define ZERO 0 //value to initialize parameters
+
+#define THREAD_PERIOD 4 //[ms]
+
+#define MODE_FRONT_LEFT 0 //mode deplacement
+#define MODE_FRONT_RIGHT 1
+#define MODE_BACK_RIGHT 2
+#define MODE_BACK_LEFT 3
+
+#define SAFE_DISTANCE 80 //security distance for wall detection
+#define DISTANCE_FOLLOW_WALL 120 //distance that the robot is going to keep with the wall while following it
+#define THRESHOLD_GRAVITY 0.25f
 
 #define SENSOR_FRONT_RIGHT 0 //#define to read the values from sensors
 #define SENSOR_BACK_RIGHT 3
@@ -24,14 +36,6 @@
 #define SENSOR_RIGHT 2
 #define SENSOR_LEFT 5
 
-#define SAFE_DISTANCE 80 //security distance for wall following
-#define DISTANCE_FOLLOW_WALL 120
-
-#define ARW_MAX 50 //anti rewind max and min values for orientation PID
-#define ARW_MIN -50
-
-#define THREAD_PERIOD 4 //[ms]
-
 #define FRONT_RIGHT 0 //#define to use the values from the sensor in the array sensor_value
 #define FRONT_LEFT 1
 #define BACK_RIGHT 2
@@ -39,24 +43,27 @@
 #define RIGHT 4
 #define LEFT 5
 
-#define MODE_FRONT_LEFT 0
-#define MODE_FRONT_RIGHT 1
-#define MODE_BACK_RIGHT 2
-#define MODE_BACK_LEFT 3
+#define NB_PROX_SENSOR 6// number of proximity sensors used
 
-#define NB_PROX_SENSOR 6
-
-#define ZERO 0 //value to initialize parameters
+    /*
+    * Proximity sensors:
+    *
+    *                    ####
+    *       BACK RIGHT#        #BACK LEFT
+    *               #            #
+    *         RIGHT#   TOP VIEW   #LEFT
+    *               #            #
+    *      FRONT RIGHT#        #FRONT LEFT
+    *                    ####
+    *
+    */
 
 static uint16_t sensor_value[NB_PROX_SENSOR];
-//static int new_speed[2];
-//static int8_t integrale=NULL;
 
 static uint8_t mode_deplacement;
 
 /***************************INTERNAL FUNCTIONS************************************/
 static void update_data(void);
-static int regulator_orientation(int16_t error);
 
 static THD_WORKING_AREA(distance_thd_wa, 512);
 static THD_FUNCTION(distance_thd, arg) {
@@ -77,7 +84,7 @@ static THD_FUNCTION(distance_thd, arg) {
 }
 
 
-static void update_data(void){
+static void update_data(void){ //reads values from 6 of the IR proximity sensors and updates the mode_deplacement
 	sensor_value[FRONT_RIGHT] = get_calibrated_prox(SENSOR_FRONT_RIGHT);
 	sensor_value[FRONT_LEFT] = get_calibrated_prox(SENSOR_FRONT_LEFT);
 	sensor_value[BACK_RIGHT] = get_calibrated_prox(SENSOR_BACK_RIGHT);
@@ -98,7 +105,7 @@ void distance_start(void){
 	chThdCreateStatic(distance_thd_wa, sizeof(distance_thd_wa), NORMALPRIO+1, distance_thd, NULL);
 }
 
-bool is_there_obstacle(void){
+bool is_there_obstacle(void){ //detects if there is an obstacle to avoid
 	float cos_gravity=get_cos_gravity();
 
 	if(((sensor_value[FRONT_RIGHT] > SAFE_DISTANCE)||	//tests if obstacle towards front right and if gravity is in the same direction
@@ -138,14 +145,14 @@ bool is_there_obstacle(void){
 			(sensor_value[BACK_RIGHT]>SAFE_DISTANCE)||
 			((sensor_value[BACK_RIGHT]+sensor_value[RIGHT]) > SAFE_DISTANCE)||
 			((sensor_value[FRONT_RIGHT]+sensor_value[RIGHT]) > SAFE_DISTANCE))&&
-			(cos_gravity<0.25)){
+			(cos_gravity<THRESHOLD_GRAVITY)){
 		return true;
 	}else if((((sensor_value[FRONT_LEFT])>SAFE_DISTANCE)||
 			(sensor_value[LEFT]>SAFE_DISTANCE)||
 			(sensor_value[BACK_LEFT]>SAFE_DISTANCE)||
 			((sensor_value[BACK_LEFT]+sensor_value[LEFT]) > SAFE_DISTANCE)||
 			((sensor_value[FRONT_LEFT]+sensor_value[LEFT]) > SAFE_DISTANCE))&&
-			(cos_gravity>(-0.25))){
+			(cos_gravity>(-THRESHOLD_GRAVITY))){
 		return true;
 	}
 
@@ -153,7 +160,7 @@ bool is_there_obstacle(void){
 	return false; //otherwise there is no obstacle to avoid
 }
 
-uint8_t index_highest_sensor_value(void){
+uint8_t index_highest_sensor_value(void){ //finds where the obstacle is by finding the sensor with the maximum value
 	uint16_t max=ZERO;
 	uint8_t max_sensor_index=ZERO;
 	for(uint8_t i=0; i<NB_PROX_SENSOR;i++){
@@ -163,30 +170,6 @@ uint8_t index_highest_sensor_value(void){
 		}
 	}
 	return max_sensor_index;
-}
-
-uint16_t get_distance_front_right(void){
-	return sensor_value[FRONT_RIGHT];
-}
-
-uint16_t get_distance_front_left(void){
-	return sensor_value[FRONT_LEFT];
-}
-
-uint16_t get_distance_back_right(void){
-	return sensor_value[BACK_RIGHT];
-}
-
-uint16_t get_distance_back_left(void){
-	return sensor_value[BACK_LEFT];
-}
-
-uint16_t get_distance_right(void){
-	return sensor_value[RIGHT];
-}
-
-uint16_t get_distance_left(void){
-	return sensor_value[LEFT];
 }
 
 int16_t get_error_distance_to_wall_right(void){
