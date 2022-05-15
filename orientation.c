@@ -71,7 +71,7 @@ static void update_data(void) //
 
 	norme = sqrt(acceleration_x*acceleration_x + acceleration_y*acceleration_y);
 
-	// if we want the e-puck to be in the same diirection as the slope, acceleration_x should be zero
+	// if we want the e-puck to be in the same direction as the slope, acceleration_x should be zero
 	// instead of taking the angle as an error we took the acceleration_x
 	error = acceleration_x;
 

@@ -28,8 +28,8 @@
 #define SPEED_MAX 1000
 #define SPEED_MIN 0
 
-#define ARW_MAX 50 //anti rewind max and min values for wall following PID
-#define ARW_MIN -50
+#define ARW_MAX_WALL 50 //anti rewind max and min values for wall following PID
+#define ARW_MIN_WALL -50
 
 #define SPEED_BIAS 400
 
@@ -164,10 +164,10 @@ static int16_t regulator_wall_following(int16_t error)
 
 	integrale_pid_wall_following += KI_ORIENTATION *error*DISTANCE_THREAD_TIME;
 
-	if(integrale_pid_wall_following > ARW_MAX){
-			integrale_pid_wall_following = ARW_MAX;
-	}else if(integrale_pid_wall_following < ARW_MIN ){
-			integrale_pid_wall_following = ARW_MIN;
+	if(integrale_pid_wall_following > ARW_MAX_WALL){ //anti rewind
+			integrale_pid_wall_following = ARW_MAX_WALL;
+	}else if(integrale_pid_wall_following < ARW_MIN_WALL ){
+			integrale_pid_wall_following = ARW_MIN_WALL;
 	}
 
 	wall_following_pid = KP_ORIENTATION*error + integrale_pid_wall_following + (KD_ORIENTATION*(error-old_error))/DISTANCE_THREAD_TIME;
