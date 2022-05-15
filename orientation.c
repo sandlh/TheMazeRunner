@@ -66,7 +66,6 @@ static void update_data(void) //
 
 	// if we want the e-puck to be in the same diirection as the slope, acceleration_x should be zero
 	// instead of taking the angle as an error we took the acceleration_x
-
 	error = acceleration_x;
 
 	if ((acceleration_x*acceleration_y >= 0) && (acceleration_y >=0)){
@@ -85,9 +84,8 @@ static int16_t passe_bas_filter(int16_t acc){
 
     // low pass filter
 
-	static int16_t acc_filtered_old_value = 0;
-	//we always call this function for acceleration_x and acceleration_y one after the other
-	                   //so we take the older value for the last value of the acceleration currently being filtered
+	static int16_t acc_filtered_old_value = 0;     //we always call this function for acceleration_x and acceleration_y one after the other
+	                                              //so we take the older value for the last value of the acceleration currently being filtered
 	static int16_t acc_filtered_older_value = 0;
 
 	//equation of the low pass filter, read the rpport for more information

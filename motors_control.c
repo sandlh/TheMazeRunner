@@ -2,17 +2,9 @@
 #include "orientation.h"
 #include "distance.h"
 
-
 #include <msgbus/messagebus.h>
-
 #include <motors.h>
-
-
-#include <stdbool.h>
 #include <stdlib.h>
-#include <chprintf.h>
-#include <usbcfg.h>
-
 
 #include <math.h>
 
