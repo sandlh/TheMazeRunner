@@ -176,8 +176,8 @@ static int16_t regulator_wall_following(int16_t error)
 }
 
 static void follow_wall(int16_t speed_prop){
-	uint8_t index_sensor_max = index_highest_sensor_value();
-	static int16_t error_orientation_with_wall = ZERO;	//error to keep the robot parallele to wall
+	uint8_t index_sensor_max = index_highest_sensor_value();//finds proximity sensor with max value
+	static int16_t error_orientation_with_wall = ZERO;	//error to keep the robot parallel to wall
 	static int16_t error_distance_to_wall = ZERO;		//error to keep the robot at a certain distance from the wall
 
 	int8_t mode_deplacement = get_mode_deplacement(); //gets where the gravity is pointing to
