@@ -20,11 +20,6 @@
 
 #define THREAD_PERIOD 2 //[ms]
 
-#define MODE_FRONT_LEFT 0 //mode deplacement
-#define MODE_FRONT_RIGHT 1
-#define MODE_BACK_RIGHT 2
-#define MODE_BACK_LEFT 3
-
 #define SAFE_DISTANCE 80 //security distance for wall detection
 #define DISTANCE_FOLLOW_WALL 120 //distance that the robot is going to keep with the wall while following it
 #define THRESHOLD_GRAVITY 0.25f

@@ -12,14 +12,9 @@
 #define THREAD_PERIOD	4//[ms]
 
 #define PI 3.14
-#define CUTOFFREQUENCY 0.00015
+#define CUTOFFREQUENCY 0.0015
 #define TAU 1/(2*PI*CUTOFFREQUENCY)
 #define ALPHA THREAD_PERIOD/(TAU +THREAD_PERIOD)
-
-#define MODE_FRONT_LEFT 0
-#define MODE_FRONT_RIGHT 1
-#define MODE_BACK_RIGHT 2
-#define MODE_BACK_LEFT 3
 
 
 static int16_t error = 0;
@@ -70,8 +65,8 @@ static void update_data(void) // chang�
 	acceleration_x = passe_bas_filter(acceleration_x);
 	acceleration_y = passe_bas_filter(acceleration_y);
 
-	//chprintf((BaseSequentialStream *)&SD3, "acc_x = %d \n", acceleration_x); //prints
-	//chprintf((BaseSequentialStream *)&SD3, "acc_y = %d \n", acceleration_y); //prints
+	chprintf((BaseSequentialStream *)&SD3, "acc_x = %d \n", acceleration_x); //prints
+	chprintf((BaseSequentialStream *)&SD3, "acc_y = %d \n", acceleration_y); //prints
 
 
 	norme = sqrt(acceleration_x*acceleration_x + acceleration_y*acceleration_y);

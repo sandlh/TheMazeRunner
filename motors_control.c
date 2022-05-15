@@ -29,11 +29,6 @@
 
 #define ACC_MAX 10000
 
-#define MODE_FRONT_LEFT 0
-#define MODE_FRONT_RIGHT 1
-#define MODE_BACK_RIGHT 2
-#define MODE_BACK_LEFT 3
-
 #define SPEED_COEFF 5
 #define SPEED_MAX 1000
 #define SPEED_MIN 0
@@ -58,7 +53,7 @@
 #define SPEED_ZERO 0
 
 static void set_motors_speed(int16_t speed_ext, float speed_int);
-static float regulator_speed(int16_t error);
+static float regulator_speed();
 
 static int16_t speed_proportionelle(int16_t norme);
 static void calculate_speeds(int16_t speed_prop);
@@ -89,9 +84,9 @@ static THD_FUNCTION(motor_control_thd, arg)
 	    	if(is_there_obstacle()){
 		    	avoid_obstacle(speed_prop);
 	    	}else{
-	    	integrale_pid_orientation = 0;
-			calculate_speeds(speed_prop);
-	    	set_motors_speed(speed_ext, speed_int);
+	    		integrale_pid_orientation = 0;
+	    		calculate_speeds(speed_prop);
+	    		set_motors_speed(speed_ext, speed_int);
 	    	}
 
 			chThdSleepUntilWindowed(time, time + MS2ST(THREAD_TIME));
@@ -115,8 +110,8 @@ static int16_t speed_proportionelle(int16_t norme)
 static void calculate_speeds(int16_t speed_prop)  // enlever les valeurs numï¿½riques
 
 {
-	int16_t error = fabs(get_error());
-	float pid = regulator_speed(error);
+
+	float pid = regulator_speed();
 
 	if (pid > ACC_MAX){
 		pid = ACC_MAX;
@@ -128,7 +123,7 @@ static void calculate_speeds(int16_t speed_prop)  // enlever les valeurs numï¿½r
 
 }
 
-static float regulator_speed(int16_t error)  //voir si je peux le mettre en int
+static float regulator_speed()  //voir si je peux le mettre en int
 {
 	//PID
 		uint8_t dt = 4;
@@ -138,6 +133,7 @@ static float regulator_speed(int16_t error)  //voir si je peux le mettre en int
 		float new_integrale = 0;
 		static float integrale = 0;
 
+		int16_t error = abs(get_error());
 		new_integrale = KI_SPEED * error*dt;
 		integrale += new_integrale;
 
@@ -145,7 +141,6 @@ static float regulator_speed(int16_t error)  //voir si je peux le mettre en int
 				integrale = AWM_MAX;
 		else if (integrale < AWM_MIN )
 				integrale = AWM_MIN;
-
 
 		speed_pid = KP_SPEED*error + integrale + KD_SPEED*(error-ancienne_erreur)/dt;
 		ancienne_erreur = error;
@@ -178,7 +173,7 @@ static void set_motors_speed(int16_t speed_ext, float speed_int)
 static int16_t regulator_orientation(int16_t error)
 {
 	//PID
-	uint8_t dt = THREAD_TIME; //est-ce qu'on a besoin de le déclaré comme une valeur ? on peut pas juste utilisé le define ?
+	uint8_t dt = THREAD_TIME; //est-ce qu'on a besoin de le dï¿½clarï¿½ comme une valeur ? on peut pas juste utilisï¿½ le define ?
 
 	static int16_t old_error = ZERO;
 	int16_t orientation_pid =ZERO;

@@ -3,6 +3,11 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#define MODE_FRONT_LEFT 0
+#define MODE_FRONT_RIGHT 1
+#define MODE_BACK_RIGHT 2
+#define MODE_BACK_LEFT 3
+
 void orientation_start(void);
 
 int16_t get_error(void);
