@@ -132,7 +132,7 @@ bool is_there_obstacle(void){ //detects if there is an wall to avoid
 uint8_t index_highest_sensor_value(void){ //finds where the wall is by finding the sensor with the maximum value
 	uint16_t max=ZERO;
 	uint8_t max_sensor_index=ZERO;
-	for(uint8_t i=0; i<NB_PROX_SENSOR;i++){
+	for(uint8_t i=ZERO; i<NB_PROX_SENSOR;i++){
 		if(sensor_value[i]>max){
 			max=sensor_value[i];
 			max_sensor_index = i;
