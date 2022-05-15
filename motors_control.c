@@ -64,7 +64,7 @@ static THD_FUNCTION(motor_control_thd, arg)
 	(void) arg;
 	     chRegSetThreadName(__FUNCTION__);
 
-	     int16_t speed_prop = 0;
+	     int16_t speed_prop = ZERO;
 
 	     systime_t time;
 
@@ -77,9 +77,9 @@ static THD_FUNCTION(motor_control_thd, arg)
 	    	if(is_there_obstacle()){
 		    	avoid_obstacle(speed_prop);
 	    	}else{
-	    		integrale_pid_orientation = 0;
-	    		calculate_speeds(speed_prop);
-	    		set_motors_speed(speed_ext, speed_int);
+	    	integrale_pid_orientation = ZERO;
+			calculate_speeds(speed_prop);
+	    	set_motors_speed(speed_ext, speed_int);
 	    	}
 
 			chThdSleepUntilWindowed(time, time + MS2ST(THREAD_TIME));
