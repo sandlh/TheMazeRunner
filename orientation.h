@@ -13,7 +13,7 @@
 #define MODE_BACK_RIGHT 2
 #define MODE_BACK_LEFT 3
 
-#define ZERO 0
+#define ZERO 0 //value to initialize parameters
 
 /*
  *                                       Mode d'acceleration

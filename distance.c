@@ -125,7 +125,7 @@ bool is_there_obstacle(void){ //detects if there is an wall to avoid
 
 			return true;
 
-	}else if((((sensor_value[FRONT_RIGHT])>SAFE_DISTANCE)||
+	}else if((((sensor_value[FRONT_RIGHT])>SAFE_DISTANCE)|| //if gravity is a bit towards the left, the robot continues a bit to follow the wall
 			(sensor_value[RIGHT]>SAFE_DISTANCE)||
 			(sensor_value[BACK_RIGHT]>SAFE_DISTANCE)||
 			((sensor_value[BACK_RIGHT]+sensor_value[RIGHT]) > SAFE_DISTANCE)||
