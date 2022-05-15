@@ -2,10 +2,7 @@
 
 #include <msgbus/messagebus.h>
 #include <sensors/imu.h>
-#include <stdbool.h>
 #include <stdlib.h>
-#include <chprintf.h>
-#include <usbcfg.h>
 
 #include <math.h>
 
@@ -22,7 +19,6 @@ static int8_t mode_deplacement = 0;
 messagebus_t bus;
 MUTEX_DECL(bus_lock);
 CONDVAR_DECL(bus_condvar);
-
 
 void orientation_start(void);
 
@@ -52,6 +48,7 @@ static THD_FUNCTION(imu_reader_thd, arg) {
 
 		update_data();
 
+		// go to sleep
 		chThdSleepUntilWindowed(time, time + MS2ST(ORIENTATION_THREAD_PERIOD));
 
 	}
@@ -90,7 +87,7 @@ static int16_t passe_bas_filter(int16_t acc){
 
 	static int16_t acc_filtered_old_value = 0;
 	//we always call this function for acceleration_x and acceleration_y one after the other
-	//so we take the older value for the last value of the acceleration currently being filtered
+	                   //so we take the older value for the last value of the acceleration currently being filtered
 	static int16_t acc_filtered_older_value = 0;
 
 	//equation of the low pass filter, read the rpport for more information
@@ -114,7 +111,7 @@ void orientation_start(void)
 	chThdCreateStatic(imu_reader_thd_wa, sizeof(imu_reader_thd_wa), NORMALPRIO, imu_reader_thd, NULL);
 }
 
-// get functions : used to get those static variables to other modules
+// get functions
 int16_t get_error(void)
 {
 	return error;

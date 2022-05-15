@@ -27,7 +27,7 @@
 #define AWU_MIN  -AWU_MAX
 
 #define NORME_MAX 5500
-#define NORME_MIN 500
+#define NORME_MIN 750
 
 #define ACC_MAX 10000
 
