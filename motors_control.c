@@ -92,7 +92,7 @@ static int16_t speed_proportionelle(int16_t norme)
 static void follow_slope(int16_t speed_prop)
 
 {
-	integrale_pid_wall_following = ZERO;
+	integrale_pid_wall_following = ZERO; //resets integral of wall following PID so that when there's a wall again, the integral is zero
 	float pid = regulator_speed();
 
 	if (pid > ACC_MAX){
