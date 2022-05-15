@@ -1,3 +1,10 @@
+/*
+ * orientation.h
+ *
+ *  Created on: Apr 25, 2022
+ *      Author: Sandra L'Herminé
+ */
+
 #include "orientation.h"
 
 #include <msgbus/messagebus.h>
@@ -88,7 +95,7 @@ static int16_t passe_bas_filter(int16_t acc){
 	                                              //so we take the older value for the last value of the acceleration currently being filtered
 	static int16_t acc_filtered_older_value = 0;
 
-	//equation of the low pass filter, read the rpport for more information
+	//equation of the low pass filter, read the report for more information
 	int16_t acc_low_pass_filtered = ALPHA * acc +(1-ALPHA)*acc_filtered_older_value;
 
 	//update the static variable of previous values
