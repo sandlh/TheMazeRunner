@@ -1,3 +1,9 @@
+/*
+ * main.c
+ *
+ *  Created on: Apr 25, 2022
+ *      Author: Sandra L'Herminé et Barbara de Groot
+ */
 #include <ch.h>
 #include <hal.h>
 #include <memory_protection.h>

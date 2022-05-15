@@ -1,3 +1,9 @@
+/*
+ * motors_control.c
+ *
+ *  Created on: Apr 25, 2022
+ *      Author: Barbara De Groot et Sandra L'Herminé
+ */
 #include "motors_control.h"
 #include "orientation.h"
 #include "distance.h"
@@ -33,7 +39,7 @@
 
 #define KP_ORIENTATION 4
 #define KI_ORIENTATION 1
-#define KD_ORIENTATION 20
+#define KD_ORIENTATION 5
 
 static void set_motors_speed(int16_t speed_ext, float speed_int);
 static float regulator_speed(void);
